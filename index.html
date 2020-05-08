@@ -45,11 +45,14 @@
   * on the page. */
   .map-overlay {
     position: absolute;
+    margin-top:60px;
+    margin-bottom:40px;
+    width: 235px;
     bottom: 0;
     right: 0;
     background: #584f7e;
     opacity:0.8;
-    margin-right: 20px;
+    margin-right: 13px;
     font-family: sans-serif,"Open Sans";
     overflow: auto;
     border-radius: 3px;
@@ -58,8 +61,8 @@
   #features {
     top: 0;
     height: 120px;
-    margin-top: 20px;
-    width: 250px;
+    /* margin-top: 100px; */
+    /* width: 235px; */
     color:white;
     font-family: sans-serif;
     font-variant: small-caps;
@@ -68,11 +71,13 @@
   #legend {
     padding: 10px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    line-height: 24px;
+    line-height: 21px;
     /* font-size: 1.2em; */
-    height: 150px;
-    margin-bottom: 40px;
-    width: 250px;
+    padding-top: 5px;
+    height: 125px;
+    /* margin-bottom: 40px; */
+    font-size: 0.8em;
+    /* width: 235px; */
     color: white;
     font-family: sans-serif;
     font-variant: small-caps;
@@ -82,7 +87,7 @@
     display: inline-block;
     color:white;
     border-radius: 20%;
-    font-size: 0.8em;
+    /* font-size: 0.2em; */
     width: 10px;
     height: 10px;
     margin-right: 5px;
@@ -95,9 +100,19 @@
   <body>
 
     <div id='map'></div>
-    <div class='map-overlay' id='features'><h2>RDOF Elegible Locations</h2><div id='pd'><p>Hover over a location!</p></div></div>
-    <div class='map-overlay' id='legend'><p>Number of Elegible Locations</p><div id='pd2'></div>
+    <div class='map-overlay' id='features'><h2>RDOF Eligible Locations</h2><div id='pd'><p>Hover over a location!</p></div></div>
+    <div class='map-overlay' id='legend'><p>Number of Eligible Locations</p><div id='pd2'></div>
 
+<!-- add search bars -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+    <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+    type="text/css"
+    />
+  <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
 
   <script>
 
@@ -134,7 +149,7 @@
 
 map.on('mousemove', function(e) {
   var counties = map.queryRenderedFeatures(e.point, {
-    layers: ['rdofcounty-dwtg7t']
+    layers: ['rdofcounty']
     
   });
   
@@ -146,6 +161,13 @@ map.on('mousemove', function(e) {
     document.getElementById('pd').innerHTML = '<p>Hover over a county!</p>';
   }
 });
+
+map.addControl(
+new MapboxGeocoder({
+accessToken: mapboxgl.accessToken,
+mapboxgl: mapboxgl
+})
+);
 
 
   </script>
