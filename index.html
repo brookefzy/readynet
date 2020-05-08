@@ -1,178 +1,157 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8" />
-<title>Update a choropleth layer by zoom level</title>
-<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-<script src="https://api.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.js"></script>
-<link href="https://api.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.css" rel="stylesheet" />
-<style>
-	body { margin: 0; padding: 0; }
-	#map { position: absolute; top: 0; bottom: 0; width: 100%; }
-</style>
-</head>
-<body>
-<style>
-.legend {
-background-color: #fff;
-border-radius: 3px;
-bottom: 30px;
-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-padding: 10px;
-position: absolute;
-right: 10px;
-z-index: 1;
+  <head>
+    <meta charset='utf-8' />
+    <title></title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.css' rel='stylesheet' />
+
+    <style>
+    body {
+    margin: 0;
+    padding: 0;
+  }
+
+  h2,
+  h3 {
+    margin: 10px;
+    font-size: 1.2em;
+  }
+
+  h3 {
+    font-size: 1em;
+  }
+
+  p {
+    font-size: 0.85em;
+    margin: 10px;
+    text-align: left;
+  }
+
+  /**
+  * Create a position for the map
+  * on the page */
+  #map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+  }
+
+  /**
+  * Set rules for how the map overlays
+  * (information box and legend) will be displayed
+  * on the page. */
+  .map-overlay {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #584f7e;
+    opacity:0.8;
+    margin-right: 20px;
+    font-family: sans-serif,"Open Sans";
+    overflow: auto;
+    border-radius: 3px;
+  }
+
+  #features {
+    top: 0;
+    height: 120px;
+    margin-top: 20px;
+    width: 250px;
+    color:white;
+    font-family: sans-serif;
+    font-variant: small-caps;
+  }
+
+  #legend {
+    padding: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    line-height: 24px;
+    /* font-size: 1.2em; */
+    height: 150px;
+    margin-bottom: 40px;
+    width: 250px;
+    color: white;
+    font-family: sans-serif;
+    font-variant: small-caps;
+  }
+
+  .legend-key {
+    display: inline-block;
+    color:white;
+    border-radius: 20%;
+    font-size: 0.8em;
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+  }
+
+    </style>
+
+  </head>
+
+  <body>
+
+    <div id='map'></div>
+    <div class='map-overlay' id='features'><h2>RDOF Elegible Locations</h2><div id='pd'><p>Hover over a location!</p></div></div>
+    <div class='map-overlay' id='legend'><p>Number of Elegible Locations</p><div id='pd2'></div>
+
+
+  <script>
+
+  mapboxgl.accessToken = 'pk.eyJ1IjoieXVhbnpmIiwiYSI6ImNrOXc4a3VwbzA2eGkzZHJ6bzg4anNpaHMifQ.xSyKndi9kO3wlTEnVnrDzA';
+
+  var map = new mapboxgl.Map({
+    container: 'map', // container id
+    style: 'mapbox://styles/yuanzf/ck9wzv7l10o4k1imog78f29ft' // replace this with your style URL
+  });
+
+  map.on('load', function() {
+  // the rest of the code will go in here
+
+  var layers = ['0 - 4,000', '4,000 - 8,000', '8,000 - 12,500', '12,500 +'];
+  var colors = ['#010a41', '#283aaf', '#5f48e0', '#bb02a8', '#eb2d63'];
+
+  for (i = 0; i < layers.length; i++) {
+  var layer = layers[i];
+  var color = colors[i];
+  var item = document.createElement('div');
+  var key = document.createElement('span');
+  key.className = 'legend-key';
+  key.style.backgroundColor = color;
+
+  var value = document.createElement('span');
+  // document.getElementById('pd').innerHTML = layer
+  value.innerHTML = layer;
+  item.appendChild(key);
+  item.appendChild(value);
+  legend.appendChild(item);
 }
- 
-.legend h4 {
-margin: 0 0 10px;
-}
- 
-.legend div span {
-border-radius: 50%;
-display: inline-block;
-height: 10px;
-margin-right: 5px;
-width: 10px;
-}
-</style>
- 
-<div id="map"></div>
- 
-<div id="state-legend" class="legend">
-<h4>Population</h4>
-<div><span style="background-color: #723122"></span>25,000,000</div>
-<div><span style="background-color: #8B4225"></span>10,000,000</div>
-<div><span style="background-color: #A25626"></span>7,500,000</div>
-<div><span style="background-color: #B86B25"></span>5,000,000</div>
-<div><span style="background-color: #CA8323"></span>2,500,000</div>
-<div><span style="background-color: #DA9C20"></span>1,000,000</div>
-<div><span style="background-color: #E6B71E"></span>750,000</div>
-<div><span style="background-color: #EED322"></span>500,000</div>
-<div><span style="background-color: #F2F12D"></span>0</div>
-</div>
- 
-<div id="county-legend" class="legend" style="display: none;">
-<h4>Population</h4>
-<div><span style="background-color: #723122"></span>1,000,000</div>
-<div><span style="background-color: #8B4225"></span>500,000</div>
-<div><span style="background-color: #A25626"></span>100,000</div>
-<div><span style="background-color: #B86B25"></span>50,000</div>
-<div><span style="background-color: #CA8323"></span>10,000</div>
-<div><span style="background-color: #DA9C20"></span>5,000</div>
-<div><span style="background-color: #E6B71E"></span>1,000</div>
-<div><span style="background-color: #EED322"></span>100</div>
-<div><span style="background-color: #F2F12D"></span>0</div>
-</div>
- 
-<script>
-	mapboxgl.accessToken = 'pk.eyJ1IjoieXVhbnpmIiwiYSI6ImNrOXc4a3VwbzA2eGkzZHJ6bzg4anNpaHMifQ.xSyKndi9kO3wlTEnVnrDzA';
-var map = new mapboxgl.Map({
-container: 'map',
-style: 'mapbox://styles/mapbox/light-v10',
-center: [-98, 38.88],
-minZoom: 3,
-zoom: 3
+
 });
- 
-var zoomThreshold = 4;
- 
-map.on('load', function() {
-map.addSource('population', {
-'type': 'vector',
-'url': 'mapbox://mapbox.660ui7x6'
+
+map.on('mousemove', function(e) {
+  var counties = map.queryRenderedFeatures(e.point, {
+    layers: ['rdofcounty-dwtg7t']
+    
+  });
+  
+  if (counties.length > 0) {
+    // console.log(counties)
+    document.getElementById('pd').innerHTML = '<h3><strong>' + counties[0].properties.county_nam + ' County'+
+      '</strong><p><strong><em>' + counties[0].properties.location + '</strong> Elegible Locations</em><strong></p><p> <em>' + counties[0].properties.price + '</strong> Total Reserved Price</em></p></h3>';
+  } else {
+    document.getElementById('pd').innerHTML = '<p>Hover over a county!</p>';
+  }
 });
- 
-map.addLayer(
-{
-'id': 'state-population',
-'source': 'population',
-'source-layer': 'state_county_population_2014_cen',
-'maxzoom': zoomThreshold,
-'type': 'fill',
-'filter': ['==', 'isState', true],
-'paint': {
-'fill-color': [
-'interpolate',
-['linear'],
-['get', 'population'],
-0,
-'#F2F12D',
-500000,
-'#EED322',
-750000,
-'#E6B71E',
-1000000,
-'#DA9C20',
-2500000,
-'#CA8323',
-5000000,
-'#B86B25',
-7500000,
-'#A25626',
-10000000,
-'#8B4225',
-25000000,
-'#723122'
-],
-'fill-opacity': 0.75
-}
-},
-'waterway-label'
-);
- 
-map.addLayer(
-{
-'id': 'county-population',
-'source': 'population',
-'source-layer': 'state_county_population_2014_cen',
-'minzoom': zoomThreshold,
-'type': 'fill',
-'filter': ['==', 'isCounty', true],
-'paint': {
-'fill-color': [
-'interpolate',
-['linear'],
-['get', 'population'],
-0,
-'#F2F12D',
-100,
-'#EED322',
-1000,
-'#E6B71E',
-5000,
-'#DA9C20',
-10000,
-'#CA8323',
-50000,
-'#B86B25',
-100000,
-'#A25626',
-500000,
-'#8B4225',
-1000000,
-'#723122'
-],
-'fill-opacity': 0.75
-}
-},
-'waterway-label'
-);
-});
- 
-var stateLegendEl = document.getElementById('state-legend');
-var countyLegendEl = document.getElementById('county-legend');
-map.on('zoom', function() {
-if (map.getZoom() > zoomThreshold) {
-stateLegendEl.style.display = 'none';
-countyLegendEl.style.display = 'block';
-} else {
-stateLegendEl.style.display = 'block';
-countyLegendEl.style.display = 'none';
-}
-});
-</script>
- 
-</body>
+
+
+  </script>
+
+
+
+  </body>
+
 </html>

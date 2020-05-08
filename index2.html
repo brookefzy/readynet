@@ -47,32 +47,42 @@
     position: absolute;
     bottom: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.8);
+    background: #584f7e;
+    opacity:0.8;
     margin-right: 20px;
-    font-family: Arial, sans-serif;
+    font-family: sans-serif,"Open Sans";
     overflow: auto;
     border-radius: 3px;
   }
 
   #features {
     top: 0;
-    height: 100px;
+    height: 120px;
     margin-top: 20px;
     width: 250px;
+    color:white;
+    font-family: sans-serif;
+    font-variant: small-caps;
   }
 
   #legend {
     padding: 10px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    line-height: 18px;
+    line-height: 24px;
+    /* font-size: 1.2em; */
     height: 150px;
     margin-bottom: 40px;
-    width: 100px;
+    width: 250px;
+    color: white;
+    font-family: sans-serif;
+    font-variant: small-caps;
   }
 
   .legend-key {
     display: inline-block;
+    color:white;
     border-radius: 20%;
+    font-size: 0.8em;
     width: 10px;
     height: 10px;
     margin-right: 5px;
@@ -86,7 +96,7 @@
 
     <div id='map'></div>
     <div class='map-overlay' id='features'><h2>RDOF Elegible Locations</h2><div id='pd'><p>Hover over a location!</p></div></div>
-    <div class='map-overlay' id='legend'></div>
+    <div class='map-overlay' id='legend'><p>Number of Elegible Locations</p><div id='pd2'></div>
 
 
   <script>
@@ -101,8 +111,8 @@
   map.on('load', function() {
   // the rest of the code will go in here
 
-  var layers = ['0-10', '10-20', '20-50', '50-100', '100-200', '200-500', '500-1000', '1000+'];
-  var colors = ['#FFEDA0', '#FED976', '#FEB24C', '#FD8D3C', '#FC4E2A', '#E31A1C', '#BD0026', '#800026'];
+  var layers = ['0 - 4,000', '4,000 - 8,000', '8,000 - 12,500', '12,500 +'];
+  var colors = ['#010a41', '#283aaf', '#5f48e0', '#bb02a8', '#eb2d63'];
 
   for (i = 0; i < layers.length; i++) {
   var layer = layers[i];
@@ -113,6 +123,7 @@
   key.style.backgroundColor = color;
 
   var value = document.createElement('span');
+  // document.getElementById('pd').innerHTML = layer
   value.innerHTML = layer;
   item.appendChild(key);
   item.appendChild(value);
@@ -121,17 +132,20 @@
 
 });
 
-// map.on('mousemove', function(e) {
-//   var states = map.queryRenderedFeatures(e.point, {
-//     layers: ['stateData-2nby76']
-//   });
-
-//   if (states.length > 0) {
-//     document.getElementById('pd').innerHTML = '<h3><strong>' + states[0].properties.name + '</strong></h3><p><strong><em>' + states[0].properties.density + '</strong> people per square mile</em></p>';
-//   } else {
-//     document.getElementById('pd').innerHTML = '<p>Hover over a state!</p>';
-//   }
-// });
+map.on('mousemove', function(e) {
+  var counties = map.queryRenderedFeatures(e.point, {
+    layers: ['rdofcounty-dwtg7t']
+    
+  });
+  
+  if (counties.length > 0) {
+    // console.log(counties)
+    document.getElementById('pd').innerHTML = '<h3><strong>' + counties[0].properties.county_nam + ' County'+
+      '</strong><p><strong><em>' + counties[0].properties.location + '</strong> Elegible Locations</em><strong></p><p> <em>' + counties[0].properties.price + '</strong> Total Reserved Price</em></p></h3>';
+  } else {
+    document.getElementById('pd').innerHTML = '<p>Hover over a county!</p>';
+  }
+});
 
 
   </script>
