@@ -29,6 +29,11 @@
     text-align: left;
   }
 
+  h4 {
+    font-size: 1.2em;
+    line-height: 9px;
+  }
+
   /**
   * Create a position for the map
   * on the page */
@@ -115,13 +120,14 @@
   <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
 
   <script>
+    var hoveredcbgId = null;
 
-  mapboxgl.accessToken = 'pk.eyJ1IjoieXVhbnpmIiwiYSI6ImNrOXc4a3VwbzA2eGkzZHJ6bzg4anNpaHMifQ.xSyKndi9kO3wlTEnVnrDzA';
+    mapboxgl.accessToken = 'pk.eyJ1IjoieXVhbnpmIiwiYSI6ImNrOXc4a3VwbzA2eGkzZHJ6bzg4anNpaHMifQ.xSyKndi9kO3wlTEnVnrDzA';
 
-  var map = new mapboxgl.Map({
-    container: 'map', // container id
-    style: 'mapbox://styles/yuanzf/ck9wzv7l10o4k1imog78f29ft' // replace this with your style URL
-  });
+    var map = new mapboxgl.Map({
+      container: 'map', // container id
+      style: 'mapbox://styles/yuanzf/ck9wzv7l10o4k1imog78f29ft' // replace this with your style URL
+    });
 
   map.on('load', function() {
   // the rest of the code will go in here
@@ -130,43 +136,74 @@
   var colors = ['#010a41', '#283aaf', '#5f48e0', '#bb02a8', '#eb2d63'];
 
   for (i = 0; i < layers.length; i++) {
-  var layer = layers[i];
-  var color = colors[i];
-  var item = document.createElement('div');
-  var key = document.createElement('span');
-  key.className = 'legend-key';
-  key.style.backgroundColor = color;
+      var layer = layers[i];
+      var color = colors[i];
+      var item = document.createElement('div');
+      var key = document.createElement('span');
+      key.className = 'legend-key';
+      key.style.backgroundColor = color;
 
-  var value = document.createElement('span');
-  // document.getElementById('pd').innerHTML = layer
-  value.innerHTML = layer;
-  item.appendChild(key);
-  item.appendChild(value);
-  legend.appendChild(item);
+      var value = document.createElement('span');
+      // document.getElementById('pd').innerHTML = layer
+      value.innerHTML = layer;
+      item.appendChild(key);
+      item.appendChild(value);
+      legend.appendChild(item);
 }
 
 });
+// helperfunctions//
+function formatNumber(num) {
+  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+}
 
-map.on('mousemove', function(e) {
-  var counties = map.queryRenderedFeatures(e.point, {
-    layers: ['rdofcounty']
-    
-  });
-  
-  if (counties.length > 0) {
-    // console.log(counties)
-    document.getElementById('pd').innerHTML = '<h3><strong>' + counties[0].properties.county_nam + ' County'+
-      '</strong><p><strong><em>' + counties[0].properties.location + '</strong> Elegible Locations</em><strong></p><p> <em>' + counties[0].properties.price + '</strong> Total Reserved Price</em></p></h3>';
-  } else {
-    document.getElementById('pd').innerHTML = '<p>Hover over a county!</p>';
-  }
-});
+function currencyFormat(num) {
+  return '$' + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+}
+// helperfunctions//
 
-map.addControl(
-new MapboxGeocoder({
-accessToken: mapboxgl.accessToken,
-mapboxgl: mapboxgl
-})
+      map.on('mousemove', function(e) {
+        var counties = map.queryRenderedFeatures(e.point, {
+          layers: ['rdofcounty']
+          
+        });
+        
+        if (counties.length > 0) {
+          // console.log(counties)
+          document.getElementById('pd').innerHTML = '<h3><strong>' + counties[0].properties.county_nam + ' County'+
+            '</strong><p><strong><em>' + counties[0].properties.location + '</strong> Elegible Locations</em><strong></p><p> <em>' + counties[0].properties.price + '</strong> Total Reserved Price</em></p></h3>';
+        } else {
+          document.getElementById('pd').innerHTML = '<p>Hover over a county!</p>';
+        }
+      });
+
+      map.on('click','rdof-group', function(e) {
+        // var cbgs = map.queryRenderedFeatures(e.point,{
+        //   layers:['rdof-group']
+        // });
+          new mapboxgl.Popup()
+          .setLngLat(e.lngLat)
+          .setHTML('<h4><p><strong>Eligible Locations: </strong>'+ e.features[0].properties.locations+'</p>'+
+            '<p><strong>Reserved Price: </strong>'+ currencyFormat(e.features[0].properties.reserve)+'</p></h4>'+
+            '<p><strong>Local Population: </strong>'+ formatNumber(e.features[0].properties.pop)+'</p></h4>')
+          .addTo(map);
+          });
+          
+          // Change the cursor to a pointer when the mouse is over the states layer.
+          map.on('mouseenter', 'rdof-group', function() {
+          map.getCanvas().style.cursor = 'pointer';
+          });
+          
+          // Change it back to a pointer when it leaves.
+          map.on('mouseleave', 'rdof-group', function() {
+          map.getCanvas().style.cursor = '';
+          });
+
+      map.addControl(
+      new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      mapboxgl: mapboxgl
+      })
 );
 
 
