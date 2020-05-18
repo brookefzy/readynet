@@ -1,0 +1,89 @@
+body {
+    margin: 0;
+    padding: 0;
+  }
+
+  h2,
+  h3 {
+    margin: 10px;
+    font-size: 1.2em;
+  }
+
+  h3 {
+    font-size: 1em;
+  }
+
+  p {
+    font-size: 0.85em;
+    margin: 10px;
+    text-align: left;
+  }
+
+  h4 {
+    font-size: 1.2em;
+    line-height: 9px;
+  }
+
+  /**
+  * Create a position for the map
+  * on the page */
+  #map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+  }
+
+  /**
+  * Set rules for how the map overlays
+  * (information box and legend) will be displayed
+  * on the page. */
+  .map-overlay {
+    position: absolute;
+    margin-top:60px;
+    margin-bottom:40px;
+    width: 235px;
+    bottom: 0;
+    right: 0;
+    background: #584f7e;
+    opacity:0.8;
+    margin-right: 13px;
+    font-family: sans-serif,"Open Sans";
+    overflow: auto;
+    border-radius: 3px;
+  }
+
+  #features {
+    top: 0;
+    height: 120px;
+    /* margin-top: 100px; */
+    /* width: 235px; */
+    color:white;
+    font-family: sans-serif;
+    font-variant: small-caps;
+  }
+
+  #legend {
+    padding: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    line-height: 21px;
+    /* font-size: 1.2em; */
+    padding-top: 5px;
+    height: 125px;
+    /* margin-bottom: 40px; */
+    font-size: 0.8em;
+    /* width: 235px; */
+    color: white;
+    font-family: sans-serif;
+    font-variant: small-caps;
+  }
+
+  .legend-key {
+    display: inline-block;
+    color:white;
+    border-radius: 20%;
+    /* font-size: 0.2em; */
+    width: 10px;
+    height: 10px;
+    margin-right: 5px;
+  }
