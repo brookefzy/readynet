@@ -139,8 +139,8 @@ function currencyFormat(num) {
                                                         + '<p>Median Household Income: </p>'+ currencyFormat(e.features[0].properties.income_m_h)+'<br>'
                                                         + '<p>Number of Households: </p>'+ e.features[0].properties.households_num+'<br>'
   
-                                                        +'<p>% Without Internet Subscription: </p>'+ e.features[0].properties.wCompuNoInterPer+'% <br>'
-                                                        +'<p>% Without computer: </p>'+ e.features[0].properties.nComputerPerc +'% <br>';
+                                                        +'<p>% Without Internet Subscription: </p>'+ formatNumber2(e.features[0].properties.wCompuNoInterPer)+'% <br>'
+                                                        +'<p>% Without computer: </p>'+ formatNumber2(e.features[0].properties.nComputerPerc) +'% <br>';
                                                         // +'<p>% Senior:</p>'+ e.features[0].properties.seniorPerc + '% ';
         document.getElementById('hrdof').innerHTML = '<p>Eligible Locations: </p>' + formatNumber(e.features[0].properties.locations)+ '<br>'
                                                         + '<p>Reserved Price: </p>'+ currencyFormat(e.features[0].properties.reserve)
@@ -152,7 +152,7 @@ function currencyFormat(num) {
 
           new mapboxgl.Popup()
           .setLngLat(e.lngLat)
-          .setHTML('<p>Census Block Group ID: '+ e.features[0].properties.GEOID+'</p>'+
+          .setHTML('<p>Census Block Group ID: '+ e.features[0].properties.FIPS+'</p>'+
           '</h2><p>Local Population: '+ formatNumber(e.features[0].properties.pop)+'</p><br>'
             +'<h3><strong>Eligible Locations: </strong></h3><h2>'+ formatNumber(e.features[0].properties.locations)+
             '<br></h2><h3><strong>Reserved Price: </strong></h3><h2>'+ currencyFormat(e.features[0].properties.reserve)
