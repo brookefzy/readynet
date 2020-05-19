@@ -68,7 +68,7 @@ body {
   * on the page. */
   .map-overlay {
     position: fixed;
-    margin-top:60px;
+    margin-top:50px;
     margin-bottom:60px;
 
     width: 235px;
@@ -111,57 +111,6 @@ body {
 
     color:white;
     font-family: sans-serif;
-  }
-/* 
-  #cbgdetail {
-    position: fixed;
-    top:140px;
-    margin-bottom: 50px;
-    bottom: 20px;
-    padding-bottom: 30px;
-
-    margin-top: 50px;
-    color:white;
-    font-family: sans-serif;
-    background-color: #212121;
-
-    overflow: auto;
-  } */
-  /* #4e1296 */
-
-  /* #hrdof{
-    font-size: 1em;
-    font: Roboto;
-    line-height: 18px;
-    margin: 10px;
-    text-align: left;
-    color: white;
-    font-variant: normal;
-} */
-
-  #legend {
-    padding: 10px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    line-height: 21px;
-    /* font-size: 1.2em; */
-    padding-top: 5px;
-    height: 125px;
-    /* margin-bottom: 40px; */
-    font-size: 0.8em;
-    /* width: 235px; */
-    color: white;
-    font-family: sans-serif;
-    font-variant: small-caps;
-  }
-
-  .legend-key {
-    display: inline-block;
-    color:white;
-    border-radius: 20%;
-    /* font-size: 0.2em; */
-    width: 10px;
-    height: 10px;
-    margin-right: 5px;
   }
 
   .mapboxgl-popup-close-button {
@@ -278,3 +227,54 @@ body {
     color: #fff;
 
 }
+
+.legend{
+    position: fixed;
+    margin-top:50px;
+    margin-bottom:60px;
+
+    width: 235px;
+    height: 80px;
+
+    left: 0;
+    background: #212121;
+    opacity:1;
+    margin-left: 13px;
+    font-family: sans-serif,"Open Sans";
+    overflow: auto;
+    border-radius: 3px;
+
+}
+.labels-legend {
+    position: absolute;
+    /* display:block; */
+    display: flex;
+    font-size: 10px;
+    width: 100%;
+    justify-content: space-between;
+    
+    overflow: hidden;
+    
+}
+
+.location-legend {
+    margin: 10px;
+    height: 6px;
+    background: linear-gradient(90deg,#e6e7ea 0,#e6e7ea 20%,#b0b6e8 20%,#b0b6e8 40%,#4e5dc1 40%,#4e5dc1 60%,#49349d 60%,#49349d 80%,
+    #da587d 80%, #da587d 100%);
+}
+
+.as-caption{
+    font-family: sans-serif, "Open Sans";
+    margin: 10px;
+    margin-top: 0px;
+    
+    /* text-align: justify; */
+    color: #fff;
+    font-size: 12px;
+
+}
+div {
+    display: block;
+}
+
