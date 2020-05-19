@@ -6,7 +6,7 @@
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.css' rel='stylesheet' />
-    <link href="/css/map.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="css/map.css" />
 
     <style>
 
@@ -17,8 +17,58 @@
   <body>
 
     <div id='map'></div>
-    <div class='map-overlay' id='features'><h2>RDOF Eligible Locations</h2><div id='pd'><p>Hover over a location!</p></div></div>
-    <div class='map-overlay' id='legend'><p>Number of Eligible Locations</p><div id='pd2'></div>
+    <div class='map-overlay'>
+      <div class='countycontainer'>
+        <h2>RDOF @ Counties</h2>
+          <div id='pd'><h3>Hover over a county!</h3>
+            <h5><p>Eligible Locations: </p>0<br>
+            <p>Reserved Price: </p>0<br></h5>
+            
+          </div>
+          <h2>Census Block Group Details</h2>
+      </div>
+      
+      <div class="cbgcontainer">
+      
+      <h3><strong>Socioeconomic Factors</strong></h3>
+      <h5 id='hacs'>
+        <p>Population: </p> 0<br>
+        <p>Area: </p> 0<br>
+        <p>Median Household Income: </p> 0<br>
+        <p>Number of Households: </p> 0<br>
+        <p>% Without Internet Subscription: </p> 0<br>
+        <p>% Without computer</p>0<br>
+        <!-- <p>% Senior: </p>0<br> -->
+      </h5>
+
+      <h3><strong>RDOF Details</strong></h3>
+      <h5 id='hrdof'>
+        <p>Eligible Locations: </p>0<br>
+        <p>Reserved Price: </p>0<br>
+      </h5>
+
+      <h3><strong>Competitors</strong> </h3>
+      <h5 id = 'isp'>
+        <p>Number of Known ISPs: </p>0<br>
+        <p>Number of Fiber Providers: </p>0<br>
+        <p>Largest Provider @ Current CBG: </p>0<br>
+        <p>Holding Company Name: </p>0<br>
+      </h5>
+      <!-- <h6 id = 'acknowledge'>
+        Data Sources: <br>
+        American Community Survey 2018 (5 years)<br>
+        Federal Communication Committee<br>
+        Ready.Net 
+
+      </h6> -->
+      </div>
+
+
+
+
+    </div>
+
+    <!-- <div class='map-overlay' id='legend'><p>Number of Eligible Locations</p><div id='pd2'></div> -->
 
 <!-- add search bars -->
   <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
@@ -31,6 +81,7 @@
   <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
 
+
   <script>
     var hoveredcbgId = null;
 
@@ -41,29 +92,7 @@
       style: 'mapbox://styles/yuanzf/ck9wzv7l10o4k1imog78f29ft' // replace this with your style URL
     });
 
-  map.on('load', function() {
-  // the rest of the code will go in here
 
-  var layers = ['0 - 4,000', '4,000 - 8,000', '8,000 - 12,500', '12,500 +'];
-  var colors = ['#010a41', '#283aaf', '#5f48e0', '#bb02a8', '#eb2d63'];
-
-  for (i = 0; i < layers.length; i++) {
-      var layer = layers[i];
-      var color = colors[i];
-      var item = document.createElement('div');
-      var key = document.createElement('span');
-      key.className = 'legend-key';
-      key.style.backgroundColor = color;
-
-      var value = document.createElement('span');
-      // document.getElementById('pd').innerHTML = layer
-      value.innerHTML = layer;
-      item.appendChild(key);
-      item.appendChild(value);
-      legend.appendChild(item);
-}
-
-});
 // helperfunctions//
 function formatNumber(num) {
   return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
@@ -80,24 +109,51 @@ function currencyFormat(num) {
           
         });
         
+        
         if (counties.length > 0) {
           // console.log(counties)
-          document.getElementById('pd').innerHTML = '<h3><strong>' + counties[0].properties.county_nam + ' County'+
-            '</strong><p><strong><em>' + counties[0].properties.location + '</strong> Elegible Locations</em><strong></p><p> <em>' + counties[0].properties.price + '</strong> Total Reserved Price</em></p></h3>';
+          document.getElementById('pd').innerHTML = '<h3><strong>' + counties[0].properties.county_nam + ' County</h3></strong>'+
+            '<h5><p>Eligible Locations: <strong></p>' + formatNumber(counties[0].properties.location) + '</strong><p> Total Reserved Price: <strong></p>' + currencyFormat(counties[0].properties.price) + '</strong></h5>';
         } else {
-          document.getElementById('pd').innerHTML = '<p>Hover over a county!</p>';
+          document.getElementById('pd').innerHTML = '<h3>Hover over a county!</h3><h5><p>Eligible Locations: </p>0<br><p>Reserved Price: </p>0<br></h5>';
         }
       });
 
+      map.on('mousemove', function(e) {
+        var cbgs = map.queryRenderedFeatures(e.point, {
+          layers: ['rdof-group']
+          
+        });
+        
+      });
+
       map.on('click','rdof-group', function(e) {
-        // var cbgs = map.queryRenderedFeatures(e.point,{
-        //   layers:['rdof-group']
-        // });
+
+
+
+        document.getElementById('hacs').innerHTML = '<p>Population: </p>' +formatNumber(e.features[0].properties.pop)+'<br>'
+                                                        + '<p>Area: </p>'+ formatNumber(e.features[0].properties.area)+' sqmiles<br>'
+                                                        + '<p>Median Household Income: </p>'+ currencyFormat(e.features[0].properties.income_m_h)+'<br>'
+                                                        + '<p>Number of Households: </p>'+ e.features[0].properties.households_num+'<br>'
+  
+                                                        +'<p>% Without Internet Subscription: </p>'+ e.features[0].properties.wCompuNoInterPer+'% <br>'
+                                                        +'<p>% Without computer: </p>'+ e.features[0].properties.nComputerPerc +'% <br>';
+                                                        // +'<p>% Senior:</p>'+ e.features[0].properties.seniorPerc + '% ';
+        document.getElementById('hrdof').innerHTML = '<p>Eligible Locations: </p>' + formatNumber(e.features[0].properties.locations)+ '<br>'
+                                                        + '<p>Reserved Price: </p>'+ currencyFormat(e.features[0].properties.reserve)
+
+       document.getElementById('isp').innerHTML = '<p>Number of Known ISPs: </p>'+formatNumber(e.features[0].properties.num_ISPs)+
+                                                  '<br><p>Number of Fiber Providers: </p>'+e.features[0].properties.is_fiber+
+                                                  '<br><p>Largest Provider @ Current CBG: </p>'+e.features[0].properties.ProviderName_01 +
+                                                  '<br><p>Holding Company Name: </p>'+e.features[0].properties.HoldingCompanyName_01+'<br>';
+
           new mapboxgl.Popup()
           .setLngLat(e.lngLat)
-          .setHTML('<h4><p><strong>Eligible Locations: </strong>'+ e.features[0].properties.locations+'</p>'+
-            '<p><strong>Reserved Price: </strong>'+ currencyFormat(e.features[0].properties.reserve)+'</p></h4>'+
-            '<p><strong>Local Population: </strong>'+ formatNumber(e.features[0].properties.pop)+'</p></h4>')
+          .setHTML('<p>Census Block Group ID: '+ e.features[0].properties.GEOID+'</p>'+
+          '</h2><p>Local Population: '+ formatNumber(e.features[0].properties.pop)+'</p><br>'
+            +'<h3><strong>Eligible Locations: </strong></h3><h2>'+ formatNumber(e.features[0].properties.locations)+
+            '<br></h2><h3><strong>Reserved Price: </strong></h3><h2>'+ currencyFormat(e.features[0].properties.reserve)
+            )
           .addTo(map);
           });
           
@@ -110,6 +166,8 @@ function currencyFormat(num) {
           map.on('mouseleave', 'rdof-group', function() {
           map.getCanvas().style.cursor = '';
           });
+
+          
 
       map.addControl(
       new MapboxGeocoder({
