@@ -6,7 +6,8 @@
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.css' rel='stylesheet' />
-    <link rel="stylesheet" href="css/map.css" />
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <link href="css/map.css" rel="stylesheet" />
 
     <style>
 
@@ -25,7 +26,7 @@
             <p>Reserved Price: </p>0<br></h5>
             
           </div>
-          <h2>Census Block Group Details</h2>
+          <h2>Census Block Groups</h2>
       </div>
       
       <div class="cbgcontainer">
@@ -54,30 +55,24 @@
         <p>Largest Provider @ Current CBG: </p>0<br>
         <p>Holding Company Name: </p>0<br>
       </h5>
-      <!-- <h6 id = 'acknowledge'>
-        Data Sources: <br>
-        American Community Survey 2018 (5 years)<br>
-        Federal Communication Committee<br>
-        Ready.Net 
-
-      </h6> -->
       </div>
-
-
-
-
     </div>
 
-    <div class='legend' id='legend'>
+    <!-- <div class='legend' id='legend'>
 
       <h3>Number of Eligible Locations</h3>
       <div class="location-legend" id="location-id"></div>
       <div class="labels-legend">
         <span class="as-caption" >0 </span>
-        <span class="as-caption" >36,000+</span>
-        
+        <span class="as-caption" >36,000+ </span>
 
+      </div> -->
 
+      <div class='sidebar'>
+        <div class='heading' id='heading'>
+          <h1>ISPs in the CBG</h1>
+        </div>
+        <div id='listings' class='listings'></div>
       </div>
 
 <!-- add search bars -->
@@ -94,6 +89,7 @@
 
   <script>
     var hoveredcbgId = null;
+    var dataurl = 'https://raw.githubusercontent.com/brookefzy/readynet/master/data/03_isp_sample.csv'
 
     mapboxgl.accessToken = 'pk.eyJ1IjoieXVhbnpmIiwiYSI6ImNrOXc4a3VwbzA2eGkzZHJ6bzg4anNpaHMifQ.xSyKndi9kO3wlTEnVnrDzA';
 
@@ -102,8 +98,9 @@
       style: 'mapbox://styles/yuanzf/ck9wzv7l10o4k1imog78f29ft' // replace this with your style URL
     });
 
-
-// helperfunctions//
+////////////////////////////////////////////////////////////////////////
+/////////////////////// helperfunctions////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 function formatNumber(num) {
   return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
 }
@@ -114,8 +111,9 @@ function formatNumber2(num) {
 function currencyFormat(num) {
   return '$' + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
 }
-// helperfunctions//
-
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////// helperfunctions//////////////////
+////////////////////////////////////////////////////////////////////////
       map.on('mousemove', function(e) {
         var counties = map.queryRenderedFeatures(e.point, {
           layers: ['rdofcounty']
@@ -140,7 +138,12 @@ function currencyFormat(num) {
         
       });
 
+      ////////////////////////////////////////////////////////////////////////
+      ///////////////////////create popup////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////
       map.on('click','rdof-group', function(e) {
+
+        var cbgfips=e.features[0].properties.FIPS
 
 
 
@@ -168,6 +171,20 @@ function currencyFormat(num) {
             '<br></h2><h3><strong>Reserved Price: </strong></h3><h2>'+ currencyFormat(e.features[0].properties.reserve)
             )
           .addTo(map);
+
+          d3.csv(dataurl).then(function(isps){
+
+            console.log(isps)
+            var query = {'FIPS_cbg': cbgfips}
+            var selisps = isps.filter(search, query);
+            function search(user){
+              return Object.keys(this).every((key) => user[key] === this[key]);
+            }
+            buildISPList(selisps)
+
+            // users = users.filter(obj => obj.name == filter.name)
+
+            });
           });
           
           // Change the cursor to a pointer when the mouse is over the states layer.
@@ -180,14 +197,66 @@ function currencyFormat(num) {
           map.getCanvas().style.cursor = '';
           });
 
-          
+          ///////////////////////////////////////////////////////////////////////  
+///////////////////////Load ISP Data////////////////////////////////////
+/////////////////////////////////////////////////////////////////////// 
+////This is a sample file, only list two ISPs per cbg//////////////////
+
+
+
+
+///////////////////////////////////////////////////////////////////////  
+////////////////////////geocoding control//////////////////////////////
+///////////////////////////////////////////////////////////////////////      
 
       map.addControl(
       new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
       mapboxgl: mapboxgl
       })
-);
+      );
+
+///////////////////////////////////////////////////////////////////////  
+///////////////////////ISP Listings////////////////////////////////////
+/////////////////////////////////////////////////////////////////////// 
+function buildISPList(data) {
+  document.getElementById('listings').innerHTML=""
+  data.forEach(function(isp, i){
+    /**
+     * Create a shortcut for `store.properties`,
+     * which will be used several times below.
+    **/
+    // var prop = isp.properties;
+
+    /* Add a new listing section to the sidebar. */
+    
+    var listings = document.getElementById('listings');
+    var listing = listings.appendChild(document.createElement('div'));
+    /* Assign a unique `id` to the listing. */
+    listing.id = "listing-" + isp.id;
+    /* Assign the `item` class to each listing for styling. */
+    listing.className = 'item';
+
+    /* Add the link to the individual listing created above. */
+    var link = listing.appendChild(document.createElement('a'));
+    link.href = '#';
+    link.className = 'title';
+    link.id = "link-" + isp.id;
+    link.innerHTML = isp.DBAName;
+
+    /* Add details to the individual listing. */
+    var details = listing.appendChild(document.createElement('p'));
+    details.innerHTML = "<h3><strong>Holding Company Name: </strong><h4>"+ isp.HoldingCompanyName +"</h4>"+
+                    "<h3><strong>Maximum Download Speed: </strong><h4>"+ isp.MaxAdDown +"</h4>"+
+                        "<h3><strong>Maximum Upload Speed: </strong><h4>"+ isp.MaxAdUp+"</h4>";
+
+  });
+}
+
+
+
+
+
 
 
   </script>
