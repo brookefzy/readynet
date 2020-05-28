@@ -23,6 +23,7 @@ body {
   a {
     color: #404040;
     text-decoration: none;
+    font-size: 12px;
   }
 
   a:hover {
@@ -92,8 +93,9 @@ body {
   * Set Sidebars for all ISP listings */
   .sidebar {
     position: absolute;
+    
     width: 15%;
-    height: 100%;
+    /* height: 100%; */
     top: 0;
     left: 0;
     overflow: hidden;
@@ -112,14 +114,14 @@ body {
   }
   
   .listings {
-    height: 100%;
+    /* height: 100%; */
     overflow: auto;
     padding-bottom: 60px;
   }
   
   .listings .item {
     display: block;
-    border-bottom: 1px solid #eee;
+    border-top: 1px solid #eee;
     padding: 10px;
     text-decoration: none;
   }

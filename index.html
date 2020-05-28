@@ -154,7 +154,7 @@ function currencyFormat(num) {
         var cbgfips=e.features[0].properties.FIPS_cbg
 
 
-        console.log(e.features[0].properties)
+        // console.log(e.features[0].properties)
         document.getElementById('hacs').innerHTML = '<p>Population: </p>' +formatNumber(e.features[0].properties.pop)+'<br>'
                                               
                                                         + '<p>Median Household Income: </p>'+ currencyFormat(e.features[0].properties.income_m_h)+'<br>'
@@ -187,7 +187,7 @@ function currencyFormat(num) {
 
           d3.csv(dataurl).then(function(isps){
 
-            console.log(isps)
+            // console.log(isps)
             var query = {'FIPS_cbg': cbgfips}
             var selisps = isps.filter(search, query);
             function search(user){
