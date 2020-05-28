@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset='utf-8' />
-    <title></title>
+    <title>Ready Net For ISPs</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
     <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.js'></script>
     <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.10.0/mapbox-gl.css' rel='stylesheet' />
@@ -34,27 +34,31 @@
       <h3><strong>Socioeconomic Factors</strong></h3>
       <h5 id='hacs'>
         <p>Population: </p> 0<br>
-        <p>Area: </p> 0<br>
+        <!-- <p>Area: </p> 0<br> -->
         <p>Median Household Income: </p> 0<br>
-        <p>Number of Households: </p> 0<br>
-        <p>% Without Internet Subscription: </p> 0<br>
-        <p>% Without computer</p>0<br>
+        <p>% Owner Occupied Housing Units: </p> 0<br>
+        <p>% With Bachelor Degree: </p> 0<br>
+        <p>% Senior (65+): </p>0<br>
         <!-- <p>% Senior: </p>0<br> -->
       </h5>
 
-      <h3><strong>RDOF Details</strong></h3>
+      <!-- <h3><strong>RDOF Details</strong></h3>
       <h5 id='hrdof'>
         <p>Eligible Locations: </p>0<br>
         <p>Reserved Price: </p>0<br>
-      </h5>
+      </h5> -->
 
       <h3><strong>Competitors</strong> </h3>
       <h5 id = 'isp'>
         <p>Number of Known ISPs: </p>0<br>
-        <p>Number of Fiber Providers: </p>0<br>
-        <p>Largest Provider @ Current CBG: </p>0<br>
-        <p>Holding Company Name: </p>0<br>
+        <!-- <p>Number of Fiber Providers: </p>0<br> -->
+        <!-- <p>Largest Provider @ Current CBG: </p>0<br>
+        <p>Holding Company Name: </p>0<br> -->
       </h5>
+
+      <h3><strong>ISP Listing</strong> </h3>
+      <div id = 'listings' class='listings'>
+      </div>
       </div>
     </div>
 
@@ -68,12 +72,12 @@
 
       </div> -->
 
-      <div class='sidebar'>
+      <!-- <div class='sidebar'>
         <div class='heading' id='heading'>
           <h1>ISPs in the CBG</h1>
         </div>
         <div id='listings' class='listings'></div>
-      </div>
+      </div> -->
 
 <!-- add search bars -->
   <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
@@ -147,35 +151,35 @@ function currencyFormat(num) {
       ////////////////////////////////////////////////////////////////////////
       map.on('click','rdof-group', function(e) {
 
-        var cbgfips=e.features[0].properties.FIPS
+        var cbgfips=e.features[0].properties.FIPS_cbg
 
 
-
+        console.log(e.features[0].properties)
         document.getElementById('hacs').innerHTML = '<p>Population: </p>' +formatNumber(e.features[0].properties.pop)+'<br>'
-                                                        + '<p>Area: </p>'+ formatNumber2(e.features[0].properties.area)+' sqmiles<br>'
+                                              
                                                         + '<p>Median Household Income: </p>'+ currencyFormat(e.features[0].properties.income_m_h)+'<br>'
-                                                        + '<p>Number of Households: </p>'+ e.features[0].properties.households_num+'<br>'
+                                                        + '<p>% Owner Occupied Housing Units: </p>'+ e.features[0].properties.housingowner_perc+'% <br>'
   
-                                                        +'<p>% Without Internet Subscription: </p>'+ formatNumber2(e.features[0].properties.wCompuNoInterPer)+'% <br>'
-                                                        +'<p>% Without computer: </p>'+ formatNumber2(e.features[0].properties.nComputerPerc) +'% <br>';
+                                                        +'<p>% With Bachelor Degree: </p>'+ formatNumber2(e.features[0].properties.edu_bachelor_above)+'% <br>'
+                                                        +'<p>% Senior (65+): </p>'+ formatNumber2(e.features[0].properties.senior_perc) +'% <br>';
                                                         // +'<p>% Senior:</p>'+ e.features[0].properties.seniorPerc + '% ';
-        document.getElementById('hrdof').innerHTML = '<p>Eligible Locations: </p>' + formatNumber(e.features[0].properties.locations)+ '<br>'
-                                                        + '<p>Reserved Price: </p>'+ currencyFormat(e.features[0].properties.reserve)
+        // document.getElementById('hrdof').innerHTML = '<p>Eligible Locations: </p>' + formatNumber(e.features[0].properties.locations)+ '<br>'
+        //                                                 + '<p>Reserved Price: </p>'+ currencyFormat(e.features[0].properties.reserve)
 
-       document.getElementById('isp').innerHTML = '<p>Number of Known ISPs: </p>'+formatNumber(e.features[0].properties.num_ISPs)+
-                                                  '<br><p>Number of Fiber Providers: </p>'+e.features[0].properties.is_fiber+
-                                                  '<br><p>Largest Provider @ Current CBG: </p>'+e.features[0].properties.ProviderName_01 +
-                                                  '<br><p>Holding Company Name: </p>'+e.features[0].properties.HoldingCompanyName_01+'<br>';
+       document.getElementById('isp').innerHTML = '<p>Number of Known ISPs: </p>'+formatNumber(e.features[0].properties.num_isp)+'<br>';
+                                                  // '<br><p>Number of Fiber Providers: </p>'+e.features[0].properties.is_fiber +'<br>';
+                                                  // '<br><p>Largest Provider @ Current CBG: </p>'+e.features[0].properties.ProviderName_01 +
+                                                  // '<br><p>Holding Company Name: </p>'+e.features[0].properties.HoldingCompanyName_01+'<br>';
 
           new mapboxgl.Popup()
           .setLngLat(e.lngLat)
-          .setHTML('<p>Census Block Group ID: '+ e.features[0].properties.FIPS+'</p>'+
+          .setHTML('<p>Census Block Group ID: '+ e.features[0].properties.FIPS_cbg+'</p>'+
           '</h2><p>Local Population: '+ formatNumber(e.features[0].properties.pop)+'</p><br>'
             +'<h3><strong>Eligible Locations: </strong></h3><h2>'+ formatNumber(e.features[0].properties.locations)+
             '<br></h2><h3><strong>Reserved Price: </strong></h3><h2>'+ currencyFormat(e.features[0].properties.reserve)
             )
           .addTo(map);
-          
+
 ///////////////////////////////////////////////////////////////////////  
 ///////////////////////Load ISP Data////////////////////////////////////
 /////////////////////////////////////////////////////////////////////// 
@@ -249,10 +253,10 @@ function buildISPList(data) {
     link.innerHTML = isp.DBAName;
 
     /* Add details to the individual listing. */
-    var details = listing.appendChild(document.createElement('p'));
-    details.innerHTML = "<h3><strong>Holding Company Name: </strong><h4>"+ isp.HoldingCompanyName +"</h4>"+
-                    "<h3><strong>Maximum Download Speed: </strong><h4>"+ isp.MaxAdDown +"</h4>"+
-                        "<h3><strong>Maximum Upload Speed: </strong><h4>"+ isp.MaxAdUp+"</h4>";
+    var details = listing.appendChild(document.createElement('h5'));
+    details.innerHTML = "<p>Holding Company Name: </p>"+ isp.HoldingCompanyName + "<br>"+
+                    "<p>Maximum Download Speed: </p>"+ isp.MaxAdDown +"<br>"+
+                        "<p>Maximum Upload Speed: </p>"+ isp.MaxAdUp;
 
   });
 }
