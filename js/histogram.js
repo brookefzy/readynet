@@ -6,14 +6,14 @@ function createhistogram(data) {
     type: "histogram",
     opacity: 0.9,
 
-    marker: { color: "#4e5dc1" },
-    // xbins: { size: 10 },
+    marker: { color: "#da587d" },
+    // xbins: { size: 10 },#4e5dc1
   };
   var data = [trace];
   var layout = {
-    width: 260,
-    height: 250,
-    margin: { t: 0, r: 20, b: 40, l: 60 },
+    // width: 260,
+    // height: 300,
+    margin: { t: 30, r: 50, b: 50, l: 60 },
 
     bargap: 0.1,
     paper_bgcolor: "rgba(0,0,0,0)",
