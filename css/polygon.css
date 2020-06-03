@@ -9,13 +9,26 @@ body {
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
+.calculation-box {
+  height: 40px;
+  width: 250px;
+  position: absolute;
+  top: 50px;
+  /* bottom: 0px; */
+  right: 0px;
+  color: #ddd;
+  background-color: #212121;
+  border-bottom: solid 2px #b0b6e8;
+}
+
 h1 {
-  font-size: 22px;
-  margin: 0;
+  font-size: 18px;
+  color: #b0b6e8;
+  margin: 10px;
   font-weight: 400;
-  line-height: 20px;
-  padding: 20px 2px;
-  color: #fff;
+  line-height: 24px;
+  /* padding: 20px 2px; */
+  /* color: #fff; */
 }
 
 a {
@@ -31,7 +44,7 @@ a:hover {
 h2 {
   color: #4e5dc1;
   margin: 10px;
-  font-size: 1.1em;
+  font-size: 12px;
 }
 /* #da587d #b0b6e8*/
 
@@ -42,23 +55,11 @@ h3 {
 }
 
 h4 {
-  margin: 0px;
-  font-size: 0.9em;
-  line-height: 1.4em;
+  margin: 10px;
+  font-size: 1em;
+  line-height: 15px;
   color: #fff;
-  justify-content: center;
 }
-
-p {
-  font-size: 12px;
-  margin: 0px;
-  /* line-height: 15px; */
-  margin-bottom: -3px;
-  text-align: left;
-  color: rgba(255, 255, 255, 0.4);
-}
-
-/* small text for details */
 h5 {
   font-size: 12px;
   font-family: Roboto;
@@ -80,77 +81,43 @@ h6 {
   color: #b0b6e8;
 }
 
+p {
+  font-size: 12px;
+  margin: 0px;
+  /* line-height: 15px; */
+  margin-bottom: -3px;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.4);
+}
+
 #map {
   position: absolute;
+  left: 0;
   top: 0;
   bottom: 0;
   width: 100%;
 }
-/**
-  * Set Sidebars for all ISP listings */
-.sidebar {
-  position: absolute;
-
-  /* width: 15%; */
-  /* height: 100%; */
-  /* top: 100px; */
-  /* left: 50px; */
-  margin: 100px;
-  height: 650px;
-  width: 400px;
-  overflow: hidden;
-  /* background-color: #1785fb; */
-  align-content: center;
-  justify-content: left;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.6);
-  background: #49349d;
-  /* #042762 */
-  /* #5c18c3 */
-  /* border-bottom: 1px solid #eee; */
-  /* border-right: 1px solid rgba(0, 0, 0, 0.25); */
-}
-
-.button {
-  border: none;
-  color: black;
-  /* font-weight: bold; */
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  /* font-size: 16px; */
-  margin: 4px 2px;
-  cursor: pointer;
-  background-color: #f9c900;
-  border-radius: 0.5em;
-  box-shadow: rgba(0, 0, 0, 0.4);
-}
-#map_text {
-  color: black;
-  /* font-weight: bold; */
-  padding: 15px 32px;
-  text-align: center;
-  text-decoration: none;
-  font-size: 16px;
-}
 
 .heading {
-  background: #4e5dc1;
   /* border-bottom: 1px solid #212121; */
-  height: 60px;
+  position: absolute;
+  z-index: 1;
+  width: 250px;
+  height: 50px;
   line-height: 60px;
   padding: 0 10px;
-  border-bottom: 1px solid #eee;
+
+  background-color: #212121;
+  text-align: center;
 }
+
 .header {
   z-index: 1;
   background-color: #212121;
   position: fixed;
   color: white;
   width: 100%;
-  height: 10%;
+  height: 75px;
   top: 0;
   text-decoration: none;
 }
@@ -162,8 +129,8 @@ h6 {
   text-decoration: none;
   color: white;
   position: fixed;
-  left: 5%;
-  top: 3%;
+  left: 50px;
+  top: 25px;
   z-index: 1;
 }
 
@@ -178,14 +145,14 @@ nav {
 ul {
   list-style-type: none;
   height: 100%;
-  width: 40%;
+  width: 30%;
   padding: 0;
   margin-right: 0;
   margin-left: auto;
 }
 
 li {
-  float: left;
+  float: right;
   text-align: center;
   top: 1%;
   height: 50%;
@@ -193,15 +160,146 @@ li {
   padding-right: 5%;
 }
 
-.listings {
-  /* height: 100%; */
+.navi {
+  font-family: "Montserrat", sans-serif;
+  font-weight: 400;
+  font-size: 18px;
+  text-decoration: none;
+  color: #a9a9a9;
+}
+
+.map-overlay {
+  position: fixed;
+  z-index: 2;
+  width: 270px;
+  bottom: 0;
+  top: 75px;
+  right: 0;
+  /* font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif; */
+  background-color: #212121;
+  /* height: 400px; */
+  max-height: 100%;
+  /* bottom: 350px; */
+  /* overflow: auto; */
+  border-bottom: #b0b6e8;
+}
+
+.map-overlay fieldset {
+  display: none;
+  background: #212121;
+  border: none;
+  padding: 10px;
+  margin: 0;
+}
+
+.map-overlay input {
+  /* display: inline-block; */
+  border: none;
+  width: 100%;
+  border-radius: 3px;
+  padding: 10px;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.map-overlay .listing {
+  top: 420px;
   overflow: auto;
+  /* max-height: 100%; */
+
+  bottom: 0px;
+}
+
+.map-overlay .listing > * {
+  display: absolute;
+  padding: 5px 10px;
+  margin: 0;
+}
+
+.map-overlay .listing a {
+  /* border-bottom: 2px solid #b0b6e8; */
+  color: #eee;
+  text-decoration: none;
+}
+
+.map-overlay .listing a:last-child {
+  border: none;
+}
+
+.map-overlay .listing a:hover {
+  background: #212121;
+}
+.map-overlay .listing-heading {
+  position: absolute;
+  /* z-index: 1; */
+  /* width: 250px; */
+  top: 390px;
+  height: 50px;
+  line-height: 60px;
+  margin-left: 15px;
+  /* padding: 0 10px; */
+
+  background-color: #212121;
+  text-align: center;
+}
+
+.svg-heading {
+  position: absolute;
+  /* position: absolute; */
+  font-size: 14px;
+  z-index: 1;
+  /* bottom: 340px; */
+  /* top: 75px; */
+  width: 270px;
+  height: 50px;
+  right: 0;
+  top: 40px;
+  /* background-color: #212121; */
+  /* border-top: 2px solid #b0b6e8; */
+  text-align: center;
+}
+.svg-container {
+  position: absolute;
+  font-size: 10px;
+  z-index: 1;
+  width: 270px;
+  margin: 0px;
+  top: 50px;
+  right: 0;
+  height: 290px;
+  /* bottom: 0px; */
+  /* padding: 5px; */
+  /* background-color: #212121; */
+  color: #b0b6e8;
+  /* margin-bottom: 20px; */
+}
+
+.axiswhite line {
+  stroke: #ddd;
+  stroke-width: 0.1px;
+}
+
+.axiswhite path {
+  stroke: #ddd;
+}
+
+.axiswhite text {
+  fill: #ddd;
+  font-size: 8px;
+}
+
+.listings {
+  height: 100%;
+  position: absolute;
+  top: 450px;
+
+  overflow-y: auto;
   padding-bottom: 60px;
 }
 
 .listings .item {
   display: block;
-  border-top: 1px solid #eee;
+  border-top: 0.5px solid #4e5dc1;
   padding: 10px;
   text-decoration: none;
 }
@@ -255,60 +353,6 @@ li {
   height: 0;
   clear: both;
   visibility: hidden;
-}
-
-/**
-  * Set Sidebars for all ISP listings Finished */
-
-/**
-  * Set rules for how the map overlays
-  * (information box and legend) will be displayed
-  * on the page. */
-
-.map-overlay {
-  position: fixed;
-  margin-top: 50px;
-  margin-bottom: 60px;
-
-  width: 235px;
-  height: 100%;
-
-  right: 0;
-  background: #212121;
-  opacity: 1;
-  margin-right: 13px;
-  font-family: sans-serif, "Open Sans";
-  overflow: auto;
-  border-radius: 3px;
-}
-/* #042762; */
-/* #584f7e */
-.countycontainer {
-  position: absolute;
-  top: 0px;
-  margin-bottom: 40px;
-  width: 235px;
-  height: 230px;
-  /* background: rgba(0, 0, 0, 0); */
-  opacity: 1;
-}
-.cbgcontainer {
-  position: absolute;
-  top: 180px;
-  margin-bottom: 30px;
-  width: 235px;
-  height: 67%;
-  /* background: rgba(0, 0, 0, 0); */
-  opacity: 1;
-  overflow: auto;
-}
-
-#features {
-  top: 0;
-  /* height: 120px; */
-
-  color: white;
-  font-family: sans-serif;
 }
 
 .mapboxgl-popup-close-button {
@@ -414,10 +458,33 @@ li {
   color: #fff;
 }
 
+/* geocoder */
+.geocoder {
+  position: absolute;
+  z-index: 1;
+  width: 270px;
+  right: 0;
+  /* left: 50%; */
+  margin-left: 25%;
+  /* top: 75px; */
+}
+.mapboxgl-ctrl-geocoder {
+  min-width: 100%;
+  border-radius: 0;
+  /* background-color: black; */
+}
+.mapboxgl-ctrl-geocoder input {
+  padding: 6px 35px;
+  color: #212121;
+
+  /* background-color: black; */
+}
+
+/* setuplegend */
 .legend {
   position: fixed;
   z-index: 1;
-  top: 60px;
+  top: 80px;
   /* margin-bottom: 60px; */
 
   width: 235px;
@@ -425,11 +492,12 @@ li {
 
   left: 0;
   background: #212121;
-  opacity: 1;
+  opacity: 0.9;
   margin-left: 13px;
   font-family: sans-serif, "Open Sans";
   overflow: auto;
   border-radius: 3px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
 }
 .labels-legend {
   position: absolute;
@@ -469,6 +537,18 @@ li {
   color: #fff;
   font-size: 12px;
 }
-div {
-  display: block;
+
+select {
+  position: absolute;
+  z-index: 1;
+  margin: 10px 20px 10px 20px;
+  /* margin-top: 5px; */
+  top: 370px;
+  color: #fff;
+  height: 30px;
+  font: 12px "Montserrat", sans-serif;
+  background-color: #212121;
+  width: 230px;
+  border-radius: 3px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
 }

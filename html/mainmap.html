@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Highlight features within a bounding box</title>
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="../js/histogram.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+      type="text/css"
+    />
+    <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+    <!-- <link href="../css/map.css" rel="stylesheet" /> -->
+    <link href="../css/polygon.css" rel="stylesheet" />
+    <style></style>
+  </head>
+
+  <body>
+    <style>
+      .boxdraw {
+        background: rgba(180, 14, 130, 0.1);
+        border: 2px solid #da587d;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+      }
+    </style>
+    <div class="header">
+      <a class="logo" href="../index.html">
+        Get READY
+      </a>
+      <nav>
+        <ul>
+          <li>
+            <a href="funfact.html" class="navi" id="funfacts">Feed Backs</a>
+          </li>
+          <li>
+            <a href="about.html" class="navi" id="about">About</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div id="map"></div>
+
+    <div class="map-overlay">
+      <div id="geocoder" class="geocoder"></div>
+      <div class="svg-heading">
+        <h3>RDOF Reserve Price Per Location Distribution</h3>
+      </div>
+      <div id="container" class="svg-container"></div>
+
+      <select id="layer" onchange="switchlayer()">
+        <div class="dropdown-content">
+          <option value="reserve">Reserved Price</option>
+          <option value="pop">Population</option>
+        </div>
+      </select>
+
+      <div class="listing-heading">
+        <h3>
+          <strong>ISP Listing in Selected Area</strong>
+        </h3>
+      </div>
+
+      <div id="listings" class="listings"></div>
+    </div>
+
+    <div class="legend" id="legend">
+      <h3>Number of Eligible Locations</h3>
+      <div class="location-legend" id="location-id"></div>
+      <div class="labels-legend">
+        <span class="as-caption">0 </span>
+        <span class="as-caption">36,000+ </span>
+      </div>
+    </div>
+
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1IjoieXVhbnpmIiwiYSI6ImNrOXc4a3VwbzA2eGkzZHJ6bzg4anNpaHMifQ.xSyKndi9kO3wlTEnVnrDzA";
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/yuanzf/ckal3mosv3iop1iryrrxdc7u0", //readybasemap
+        center: [-91.874, 42.76],
+        minZoom: 3,
+        zoom: 5,
+      });
+
+      // Disable default box zooming.
+      map.boxZoom.disable();
+      var cbgs = [];
+      var dataurl =
+        "https://raw.githubusercontent.com/brookefzy/readynet/master/data/03_isp_sample.csv";
+
+      // Create a popup, but don't add it to the map yet.
+      var popup = new mapboxgl.Popup({
+        closeButton: false,
+      });
+      function switchlayer() {
+        var selstyle = document.getElementById("layer");
+        var layerId = selstyle.value;
+        if (layerId == "reserve") {
+          map.setLayoutProperty("map2-highlighted", "visibility", "visible");
+          map.setLayoutProperty("Popualation", "visibility", "none");
+        } else if (layerId == "pop") {
+          map.setLayoutProperty("map2-highlighted", "visibility", "none");
+          map.setLayoutProperty("Popualation", "visibility", "visible");
+        }
+      }
+
+      map.on("load", function () {
+        var layers = map.getStyle().layers;
+        console.log(layers);
+        // Find the index of the first symbol layer in the map style
+        var firstSymbolId;
+        for (var i = 0; i < layers.length; i++) {
+          if (layers[i].type === "symbol") {
+            firstSymbolId = layers[i].id;
+            break;
+          }
+        }
+        var canvas = map.getCanvasContainer();
+
+        // Variable to hold the starting xy coordinates
+        // when `mousedown` occured.
+        var start;
+
+        // Variable to hold the current xy coordinates
+        // when `mousemove` or `mouseup` occurs.
+        var current;
+
+        // Variable for the draw box element.
+        var box;
+
+        map.addSource("cbg", {
+          type: "vector",
+          url: "mapbox://yuanzf.6jvap7l2",
+        });
+        map.addLayer({
+          id: "map2",
+          source: "cbg",
+          "source-layer": "RDOF_all-6zoxdq",
+          type: "fill",
+          paint: { "fill-color": "#fff", "fill-opacity": 0 },
+        });
+
+        map.addLayer(
+          {
+            id: "map2-highlighted",
+            source: "cbg",
+            "source-layer": "RDOF_all-6zoxdq",
+            type: "fill",
+            layout: {
+              // make layer visible by default
+              //   visibility: "visible",
+            },
+
+            paint: {
+              "fill-color": {
+                property: "locations",
+                stops: [
+                  [0, "#fff"],
+                  [1, "#b0b6e8"],
+                  [600, "#4e5dc1"],
+                  [1200, "#8b38c7"],
+                  [1800, "#da587d"],
+                ],
+              },
+              "fill-opacity": 0.75,
+              "fill-outline-color": "#fff",
+            },
+            filter: ["in", "FIPS_cbg", ""],
+          },
+          firstSymbolId,
+          "road-simple"
+        );
+
+        map.addLayer(
+          {
+            id: "Popualation",
+            type: "fill",
+            source: "cbg",
+            "source-layer": "RDOF_all-6zoxdq",
+            layout: {
+              // make layer visible by default
+              visibility: "none",
+            },
+            paint: {
+              "fill-color": {
+                property: "pop",
+                stops: [
+                  [1000, "#f3e9d2"],
+                  [2000, "#1a936f"],
+                  [4000, "#88d498"],
+                  [8000, "#c6dabf"],
+                  [20000, "#114b5f"],
+                ],
+              },
+            },
+          },
+          firstSymbolId
+        );
+
+        // enumerate ids of the layers
+        // var toggleableLayerIds = [
+        //   "RDOF Reserved Price",
+        //   "Popualation",
+        //   "Median Household Income",
+        //   "% with Bachelor Degree",
+        //   "Number of ISPs",
+        // ];
+
+        // set up the corresponding toggle button for each layer
+
+        canvas.addEventListener("mousedown", mouseDown, true);
+
+        function getispnum(features) {
+          let result = features.map((d) => d.properties.num_isp);
+          return result;
+        }
+        function dealnan(a) {
+          return a ? a : 0;
+        }
+
+        function getFIPS(features) {
+          let result = features.map((d) => d.properties.FIPS_cbg);
+          return result;
+        }
+
+        function getRDOFpriceLocs(features) {
+          let result = features.map(
+            (d) =>
+              dealnan(d.properties.reserve) / dealnan(d.properties.locations) +
+              1
+          );
+          return result;
+        }
+
+        function getUniqueFeatures(array, comparatorProperty) {
+          var existingFeatureKeys = {};
+          // Because features come from tiled vector data, feature geometries may be split
+          // or duplicated across tile boundaries and, as a result, features may appear
+          // multiple times in query results.
+          var uniqueFeatures = array.filter(function (el) {
+            if (existingFeatureKeys[el.properties[comparatorProperty]]) {
+              return false;
+            } else {
+              existingFeatureKeys[el.properties[comparatorProperty]] = true;
+              return true;
+            }
+          });
+
+          return uniqueFeatures;
+        }
+
+        // Return the xy coordinates of the mouse position
+        function mousePos(e) {
+          var rect = canvas.getBoundingClientRect();
+          return new mapboxgl.Point(
+            e.clientX - rect.left - canvas.clientLeft,
+            e.clientY - rect.top - canvas.clientTop
+          );
+        }
+
+        function mouseDown(e) {
+          // Continue the rest of the function if the shiftkey is pressed.
+          if (!(e.shiftKey && e.button === 0)) return;
+
+          // Disable default drag zooming when the shift key is held down.
+          map.dragPan.disable();
+
+          // Call functions for the following events
+          document.addEventListener("mousemove", onMouseMove);
+          document.addEventListener("mouseup", onMouseUp);
+          document.addEventListener("keydown", onKeyDown);
+
+          // Capture the first xy coordinates
+          start = mousePos(e);
+        }
+
+        function onMouseMove(e) {
+          // Capture the ongoing xy coordinates
+          current = mousePos(e);
+
+          // Append the box element if it doesnt exist
+          if (!box) {
+            box = document.createElement("div");
+            box.classList.add("boxdraw");
+            canvas.appendChild(box);
+          }
+
+          var minX = Math.min(start.x, current.x),
+            maxX = Math.max(start.x, current.x),
+            minY = Math.min(start.y, current.y),
+            maxY = Math.max(start.y, current.y);
+
+          // Adjust width and xy position of the box element ongoing
+          var pos = "translate(" + minX + "px," + minY + "px)";
+          box.style.transform = pos;
+          box.style.WebkitTransform = pos;
+          box.style.width = maxX - minX + "px";
+          box.style.height = maxY - minY + "px";
+        }
+
+        function onMouseUp(e) {
+          // Capture xy coordinates
+          finish([start, mousePos(e)]);
+        }
+
+        function onKeyDown(e) {
+          // If the ESC key is pressed
+          if (e.keyCode === 27) finish();
+        }
+
+        function uniqueISPs(features) {
+          let result = Array.from(new Set(features.map((s) => s.DBAName))).map(
+            (DBAName) => {
+              return {
+                DBAName: DBAName,
+                HoldingCompanyName: features.find((s) => s.DBAName === DBAName)
+                  .HoldingCompanyName,
+                MaxAdDown: features.find((s) => s.DBAName === DBAName)
+                  .MaxAdDown,
+                MaxAdUp: features.find((s) => s.DBAName === DBAName).MaxAdUp,
+                is_fiber: features.find((s) => s.DBAName === DBAName).is_fiber,
+              };
+            }
+          );
+          return result;
+        }
+
+        var listings = document.getElementById("listings");
+        function buildISPList(data) {
+          listings.innerHTML = "";
+          data.forEach(function (isp, i) {
+            /**
+             * Create a shortcut for `store.properties`,
+             * which will be used several times below.
+             **/
+            // var prop = isp.properties;
+
+            /* Add a new listing section to the sidebar. */
+
+            var listing = listings.appendChild(document.createElement("div"));
+            /* Assign a unique `id` to the listing. */
+            listing.id = "listing-" + isp.id;
+            /* Assign the `item` class to each listing for styling. */
+            listing.className = "item";
+
+            /* Add the link to the individual listing created above. */
+            var link = listing.appendChild(document.createElement("a"));
+            link.href = "#";
+            link.className = "title";
+            link.id = "link-" + isp.id;
+            link.innerHTML = isp.DBAName;
+
+            /* Add details to the individual listing. */
+            var details = listing.appendChild(document.createElement("h5"));
+            details.innerHTML =
+              "<p>Holding Company Name: </p>" +
+              isp.HoldingCompanyName +
+              "<br>" +
+              "<p>Maximum Download Speed: </p>" +
+              isp.MaxAdDown +
+              "<br>" +
+              "<p>Maximum Upload Speed: </p>" +
+              isp.MaxAdUp;
+          });
+        }
+        function formatNumber(num) {
+          return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+        }
+        function formatNumber2(num) {
+          return num.toFixed(2).toString();
+        }
+        function currencyFormat(num) {
+          return "$" + num.toFixed(2).replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+        }
+
+        function finish(bbox) {
+          // Remove these events now that finish has been called.
+          document.removeEventListener("mousemove", onMouseMove);
+          document.removeEventListener("keydown", onKeyDown);
+          document.removeEventListener("mouseup", onMouseUp);
+
+          if (box) {
+            box.parentNode.removeChild(box);
+            box = null;
+          }
+
+          // If bbox exists. use this value as the argument for `queryRenderedFeatures`
+          if (bbox) {
+            var features = map.queryRenderedFeatures(bbox, {
+              layers: ["map2"],
+            });
+
+            if (features.length >= 2000) {
+              return window.alert("Select a smaller number of features");
+            }
+            if (features.length > 0) {
+              var uniqueFeatures = getUniqueFeatures(features, "FIPS_cbg");
+
+              // Populate features for the listing overlay.
+              // renderListings(uniqueFeatures);
+              // createhistogram(uniqueFeatures);
+              isparray = getRDOFpriceLocs(uniqueFeatures);
+
+              document.getElementById("container").innerHTML = "";
+
+              createhistogram(isparray);
+
+              cbgfips = getFIPS(uniqueFeatures);
+
+              d3.csv(dataurl).then(function (isps) {
+                // console.log(isps)
+                var selisps = isps.filter((i) => cbgfips.includes(i.FIPS_cbg));
+                var uniqisps = uniqueISPs(selisps);
+                // console.log(uniqisps);
+                buildISPList(uniqisps);
+              });
+
+              cbgs = uniqueFeatures;
+            }
+
+            // Run through the selected features and set a filter
+            // to match features with unique FIPS codes to activate
+            // the `counties-highlighted` layer.
+            var filter = features.reduce(
+              function (memo, feature) {
+                memo.push(feature.properties.FIPS_cbg);
+                return memo;
+              },
+              ["in", "FIPS_cbg"]
+            );
+
+            map.setFilter("map2-highlighted", filter);
+          }
+
+          map.dragPan.enable();
+        }
+
+        map.on("mousemove", function (e) {
+          var features = map.queryRenderedFeatures(e.point, {
+            layers: ["map2-highlighted"],
+          });
+
+          // Change the cursor style as a UI indicator.
+          map.getCanvas().style.cursor = features.length ? "pointer" : "";
+
+          if (!features.length) {
+            popup.remove();
+            return;
+          }
+
+          var feature = features[0];
+
+          popup
+            .setLngLat(e.lngLat)
+            .setHTML(
+              "<p>Census Block Group ID: " +
+                feature.properties.FIPS_cbg +
+                "</p>" +
+                "</h2><p>Local Population: " +
+                formatNumber(feature.properties.pop) +
+                "</p><br>" +
+                "<h3><strong>Eligible Locations: </strong></h3><h2>" +
+                formatNumber(feature.properties.locations) +
+                "<br></h2><h3><strong>Reserved Price: </strong></h3><h2>" +
+                currencyFormat(feature.properties.reserve)
+            )
+            .addTo(map);
+          // .setLngLat(e.lngLat)
+          // .setText(feature.properties.FIPS_cbg)
+          // .addTo(map);
+        });
+      });
+
+      ///////////////////////////////////////////////////////////////////////
+      ////////////////////////geocoding control//////////////////////////////
+      ///////////////////////////////////////////////////////////////////////
+
+      var geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+      });
+
+      document.getElementById("geocoder").appendChild(geocoder.onAdd(map));
+    </script>
+  </body>
+</html>
