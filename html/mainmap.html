@@ -62,24 +62,24 @@
     <div class="map-overlay">
       <div id="geocoder" class="geocoder"></div>
       <div class="svg-heading">
-        <h3>RDOF Reserve Price Per Location Distribution</h3>
+        <h2>RDOF @ CBGs</h2>
+        <h3>RDOF Reserve Price Per Location</h3>
       </div>
-      <div id="container" class="svg-container"></div>
+      <div id="container" class="svg-container">
+      </div>
 
-      <select id="layer" onchange="switchlayer()">
-        <div class="dropdown-content">
-          <option value="reserve">Reserved Price</option>
-          <option value="pop">Population</option>
-        </div>
-      </select>
+
 
       <div class="listing-heading">
         <h3>
-          <strong>ISP Listing in Selected Area</strong>
+            ISP Listing in Selected CBGs
         </h3>
+        <!-- <h3>Holding Shift and Draw a Square!</h3> -->
       </div>
 
       <div id="listings" class="listings"></div>
+            
+       
     </div>
 
     <div class="legend" id="legend">
@@ -91,15 +91,26 @@
       </div>
     </div>
 
+
+        <div class='countycontainer'>
+            <h2>RDOF @ Counties</h2>
+            <div id='pd'>
+                <h3>Hover over a county!</h3>
+                <h5>
+                    <p>Eligible Locations: </p>0<br>
+                    <p>Reserved Price: </p>0<br>
+                </h5>s
+        </div>
+
     <script>
       mapboxgl.accessToken =
         "pk.eyJ1IjoieXVhbnpmIiwiYSI6ImNrOXc4a3VwbzA2eGkzZHJ6bzg4anNpaHMifQ.xSyKndi9kO3wlTEnVnrDzA";
       var map = new mapboxgl.Map({
         container: "map",
         style: "mapbox://styles/yuanzf/ckal3mosv3iop1iryrrxdc7u0", //readybasemap
-        center: [-91.874, 42.76],
+        center: [-69.4455, 45.2538],
         minZoom: 3,
-        zoom: 5,
+        zoom: 6,
       });
 
       // Disable default box zooming.
@@ -112,17 +123,6 @@
       var popup = new mapboxgl.Popup({
         closeButton: false,
       });
-      function switchlayer() {
-        var selstyle = document.getElementById("layer");
-        var layerId = selstyle.value;
-        if (layerId == "reserve") {
-          map.setLayoutProperty("map2-highlighted", "visibility", "visible");
-          map.setLayoutProperty("Popualation", "visibility", "none");
-        } else if (layerId == "pop") {
-          map.setLayoutProperty("map2-highlighted", "visibility", "none");
-          map.setLayoutProperty("Popualation", "visibility", "visible");
-        }
-      }
 
       map.on("load", function () {
         var layers = map.getStyle().layers;
@@ -191,44 +191,11 @@
           "road-simple"
         );
 
-        map.addLayer(
-          {
-            id: "Popualation",
-            type: "fill",
-            source: "cbg",
-            "source-layer": "RDOF_all-6zoxdq",
-            layout: {
-              // make layer visible by default
-              visibility: "none",
-            },
-            paint: {
-              "fill-color": {
-                property: "pop",
-                stops: [
-                  [1000, "#f3e9d2"],
-                  [2000, "#1a936f"],
-                  [4000, "#88d498"],
-                  [8000, "#c6dabf"],
-                  [20000, "#114b5f"],
-                ],
-              },
-            },
-          },
-          firstSymbolId
-        );
-
-        // enumerate ids of the layers
-        // var toggleableLayerIds = [
-        //   "RDOF Reserved Price",
-        //   "Popualation",
-        //   "Median Household Income",
-        //   "% with Bachelor Degree",
-        //   "Number of ISPs",
-        // ];
-
-        // set up the corresponding toggle button for each layer
-
         canvas.addEventListener("mousedown", mouseDown, true);
+
+        ////////////////////////////////////////////////////////////////////////
+        /////////////////////// helperfunctions/////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////
 
         function getispnum(features) {
           let result = features.map((d) => d.properties.num_isp);
@@ -345,44 +312,6 @@
           return result;
         }
 
-        var listings = document.getElementById("listings");
-        function buildISPList(data) {
-          listings.innerHTML = "";
-          data.forEach(function (isp, i) {
-            /**
-             * Create a shortcut for `store.properties`,
-             * which will be used several times below.
-             **/
-            // var prop = isp.properties;
-
-            /* Add a new listing section to the sidebar. */
-
-            var listing = listings.appendChild(document.createElement("div"));
-            /* Assign a unique `id` to the listing. */
-            listing.id = "listing-" + isp.id;
-            /* Assign the `item` class to each listing for styling. */
-            listing.className = "item";
-
-            /* Add the link to the individual listing created above. */
-            var link = listing.appendChild(document.createElement("a"));
-            link.href = "#";
-            link.className = "title";
-            link.id = "link-" + isp.id;
-            link.innerHTML = isp.DBAName;
-
-            /* Add details to the individual listing. */
-            var details = listing.appendChild(document.createElement("h5"));
-            details.innerHTML =
-              "<p>Holding Company Name: </p>" +
-              isp.HoldingCompanyName +
-              "<br>" +
-              "<p>Maximum Download Speed: </p>" +
-              isp.MaxAdDown +
-              "<br>" +
-              "<p>Maximum Upload Speed: </p>" +
-              isp.MaxAdUp;
-          });
-        }
         function formatNumber(num) {
           return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
         }
@@ -416,9 +345,6 @@
             if (features.length > 0) {
               var uniqueFeatures = getUniqueFeatures(features, "FIPS_cbg");
 
-              // Populate features for the listing overlay.
-              // renderListings(uniqueFeatures);
-              // createhistogram(uniqueFeatures);
               isparray = getRDOFpriceLocs(uniqueFeatures);
 
               document.getElementById("container").innerHTML = "";
@@ -453,6 +379,64 @@
           }
 
           map.dragPan.enable();
+        }
+
+        ////////////////////////////////////////////////////////////////////////
+        /////////////////////// helperfunctions end/////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////
+        map.on("mousemove", function (e) {
+          var counties = map.queryRenderedFeatures(e.point, {
+            layers: ["rdofcounty"],
+          });
+
+          if (counties.length > 0) {
+            // console.log(counties)
+            document.getElementById("pd").innerHTML =
+              "<h3><strong>" +
+              counties[0].properties.county_nam +
+              " County</h3></strong>" +
+              "<h5><p>Eligible Locations: <strong></p>" +
+              formatNumber(counties[0].properties.location) +
+              "</strong><p> Total Reserved Price: <strong></p>" +
+              currencyFormat(counties[0].properties.price) +
+              "</strong></h5>";
+          } else {
+            document.getElementById("pd").innerHTML =
+              "<h3>Hover over a county!</h3><h5><p>Eligible Locations: </p>0<br><p>Reserved Price: </p>0<br></h5>";
+          }
+        });
+
+        var listings = document.getElementById("listings");
+        function buildISPList(data) {
+          listings.innerHTML = "";
+          data.forEach(function (isp, i) {
+            /* Add a new listing section to the listing. */
+
+            var listing = listings.appendChild(document.createElement("div"));
+            /* Assign a unique `id` to the listing. */
+            listing.id = "listing-" + isp.id;
+            /* Assign the `item` class to each listing for styling. */
+            listing.className = "item";
+
+            /* Add the link to the individual listing created above. */
+            var link = listing.appendChild(document.createElement("a"));
+            link.href = "#";
+            link.className = "title";
+            link.id = "link-" + isp.id;
+            link.innerHTML = isp.DBAName;
+
+            /* Add details to the individual listing. */
+            var details = listing.appendChild(document.createElement("h5"));
+            details.innerHTML =
+              "<p>Holding Company Name: </p>" +
+              isp.HoldingCompanyName +
+              "<br>" +
+              "<p>Maximum Download Speed: </p>" +
+              isp.MaxAdDown +
+              "<br>" +
+              "<p>Maximum Upload Speed: </p>" +
+              isp.MaxAdUp;
+          });
         }
 
         map.on("mousemove", function (e) {

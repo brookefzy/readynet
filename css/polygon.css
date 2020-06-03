@@ -104,7 +104,7 @@ p {
   z-index: 1;
   width: 250px;
   height: 50px;
-  line-height: 60px;
+  line-height: 40px;
   padding: 0 10px;
 
   background-color: #212121;
@@ -204,9 +204,6 @@ li {
 
 .map-overlay .listing {
   top: 420px;
-  overflow: auto;
-  /* max-height: 100%; */
-
   bottom: 0px;
 }
 
@@ -234,13 +231,12 @@ li {
   /* z-index: 1; */
   /* width: 250px; */
   top: 390px;
-  height: 50px;
-  line-height: 60px;
-  margin-left: 15px;
-  /* padding: 0 10px; */
+  height: 40px;
+  line-height: 20px;
+  /* margin-left: 15px; */
 
   background-color: #212121;
-  text-align: center;
+  text-align: left;
 }
 
 .svg-heading {
@@ -256,15 +252,15 @@ li {
   top: 40px;
   /* background-color: #212121; */
   /* border-top: 2px solid #b0b6e8; */
-  text-align: center;
+  text-align: left;
 }
 .svg-container {
   position: absolute;
   font-size: 10px;
   z-index: 1;
   width: 270px;
-  margin: 0px;
-  top: 50px;
+  /* margin: 0px; */
+  top: 40px;
   right: 0;
   height: 290px;
   /* bottom: 0px; */
@@ -290,8 +286,9 @@ li {
 
 .listings {
   height: 100%;
+  width: 100%;
   position: absolute;
-  top: 450px;
+  top: 430px;
 
   overflow-y: auto;
   padding-bottom: 60px;
@@ -320,7 +317,7 @@ li {
 
 .listings .item.active .title,
 .listings .item .title:hover {
-  color: #b0b6e8;
+  color: #da587d;
 }
 
 .listings .item.active {
@@ -484,7 +481,7 @@ li {
 .legend {
   position: fixed;
   z-index: 1;
-  top: 80px;
+  top: 90px;
   /* margin-bottom: 60px; */
 
   width: 235px;
@@ -492,7 +489,7 @@ li {
 
   left: 0;
   background: #212121;
-  opacity: 0.9;
+  opacity: 1;
   margin-left: 13px;
   font-family: sans-serif, "Open Sans";
   overflow: auto;
@@ -551,4 +548,21 @@ select {
   width: 230px;
   border-radius: 3px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+}
+.countycontainer {
+  position: absolute;
+  top: 180px;
+  z-index: 1;
+  /* margin-bottom: 60px; */
+
+  left: 0;
+  background: #212121;
+  opacity: 1;
+  margin-left: 13px;
+  font-family: sans-serif, "Open Sans";
+  overflow: auto;
+  border-radius: 3px;
+
+  width: 235px;
+  height: auto;
 }
