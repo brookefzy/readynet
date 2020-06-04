@@ -187,21 +187,79 @@ map.on("load", function () {
       if (features.length > 0) {
         var uniqueFeatures = getUniqueFeatures(features, "FIPS_cbg");
 
-        isparray = getRDOFpriceLocs(uniqueFeatures);
+        var isparray = getRDOFpriceLocs(uniqueFeatures);
 
         document.getElementById("histo_container").innerHTML = "";
 
         createhistogram(isparray);
 
-        cbgfips = getFIPS(uniqueFeatures);
+        var cbgfips = getFIPS(uniqueFeatures);
 
-        d3.csv(dataurl).then(function (isps) {
-          // console.log(isps)
-          var selisps = isps.filter((i) => cbgfips.includes(i.FIPS_cbg));
-          var uniqisps = uniqueISPs(selisps);
-          // console.log(uniqisps);
-          buildISPList(uniqisps);
-        });
+        fetch('http://localhost:3000/census-block-groups/isps', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(cbgfips),
+        })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Success:', data);
+
+            var listings = document.getElementById("listings");
+            listings.innerHTML = "";
+            var providerIds = []
+            data.forEach(cbg => {
+              cbg.isps.forEach(isp => {
+                if (!providerIds.includes(isp.provider_id)) {
+                  providerIds.push(isp.provider_id);
+
+                  var listing = listings.appendChild(document.createElement("div"));
+                  /* Assign a unique `id` to the listing. */
+                  listing.id = "listing-" + isp.provider_id;
+                  /* Assign the `item` class to each listing for styling. */
+                  listing.className = "item";
+
+                  /* Add the link to the individual listing created above. */
+                  var link = listing.appendChild(document.createElement("a"));
+                  link.href = isp.website;
+                  link.className = "title";
+                  link.id = "link-" + isp.provider_id;
+                  link.innerHTML = isp.dba;
+
+                  /* Add details to the individual listing. */
+                  var details = listing.appendChild(document.createElement("h5"));
+                  details.innerHTML = "<table>" +
+                  "<tr><td>Download Speed:</td><td>"+ isp.max_ad_down+"</td>Number of States Covered:<td></td><td>"+isp.number_of_states+"</td></tr>" +
+                  "<tr><td>Upload Speed:</td><td>"+ isp.max_ad_up+"</td>Estimated Population Covered:<td></td><td>"+isp.estimated_population_covered+"</td></tr>" +
+                  "<tr><td>Technology:</td><td>"+ isp.technology_types+"</td>Website:<td></td><td>"+isp.website+"</td></tr>" +
+                  "<tr><td>Offers Business Service:</td><td>"+ isp.offers_business_service+"</td>Phone:<td></td><td>"+isp.phone+"</td></tr>"
+                  details.innerHTML =
+                    "<p>Holding Company Name: </p>" +
+                    isp.holding_company +
+                    "<br>" +
+                    "<p>Maximum Download Speed: </p>" +
+                    isp.max_ad_down +
+                    "<br>" +
+                    "<p>Maximum Upload Speed: </p>" +
+                    isp.max_ad_up;
+                }
+              })
+            });
+
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
+
+
+        // d3.csv(dataurl).then(function (isps) {
+        //   // console.log(isps)
+        //   var selisps = isps.filter((i) => cbgfips.includes(i.FIPS_cbg));
+        //   var uniqisps = uniqueISPs(selisps);
+        //   // console.log(uniqisps);
+        //   buildISPList(uniqisps);
+        // });
 
         cbgs = uniqueFeatures;
       }
@@ -245,38 +303,38 @@ map.on("load", function () {
   //     }
   //   });
 
-  var listings = document.getElementById("listings");
-  function buildISPList(data) {
-    listings.innerHTML = "";
-    data.forEach(function (isp, i) {
-      /* Add a new listing section to the listing. */
+  // var listings = document.getElementById("listings");
+  // function buildISPList(data) {
+  //   listings.innerHTML = "";
+  //   data.forEach(function (isp, i) {
+  //     /* Add a new listing section to the listing. */
 
-      var listing = listings.appendChild(document.createElement("div"));
-      /* Assign a unique `id` to the listing. */
-      listing.id = "listing-" + isp.id;
-      /* Assign the `item` class to each listing for styling. */
-      listing.className = "item";
+  //     var listing = listings.appendChild(document.createElement("div"));
+  //     /* Assign a unique `id` to the listing. */
+  //     listing.id = "listing-" + isp.id;
+  //     /* Assign the `item` class to each listing for styling. */
+  //     listing.className = "item";
 
-      /* Add the link to the individual listing created above. */
-      var link = listing.appendChild(document.createElement("a"));
-      link.href = "#";
-      link.className = "title";
-      link.id = "link-" + isp.id;
-      link.innerHTML = isp.DBAName;
+  //     /* Add the link to the individual listing created above. */
+  //     var link = listing.appendChild(document.createElement("a"));
+  //     link.href = "#";
+  //     link.className = "title";
+  //     link.id = "link-" + isp.id;
+  //     link.innerHTML = isp.DBAName;
 
-      /* Add details to the individual listing. */
-      var details = listing.appendChild(document.createElement("h5"));
-      details.innerHTML =
-        "<p>Holding Company Name: </p>" +
-        isp.HoldingCompanyName +
-        "<br>" +
-        "<p>Maximum Download Speed: </p>" +
-        isp.MaxAdDown +
-        "<br>" +
-        "<p>Maximum Upload Speed: </p>" +
-        isp.MaxAdUp;
-    });
-  }
+  //     /* Add details to the individual listing. */
+  //     var details = listing.appendChild(document.createElement("h5"));
+  //     details.innerHTML =
+  //       "<p>Holding Company Name: </p>" +
+  //       isp.HoldingCompanyName +
+  //       "<br>" +
+  //       "<p>Maximum Download Speed: </p>" +
+  //       isp.MaxAdDown +
+  //       "<br>" +
+  //       "<p>Maximum Upload Speed: </p>" +
+  //       isp.MaxAdUp;
+  //   });
+  // }
 
   map.on("mousemove", function (e) {
     var features = map.queryRenderedFeatures(e.point, {
