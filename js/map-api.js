@@ -234,15 +234,6 @@ map.on("load", function () {
                   "<tr><td>Upload Speed:</td><td>"+ isp.max_ad_up+"</td>Estimated Population Covered:<td></td><td>"+isp.estimated_population_covered+"</td></tr>" +
                   "<tr><td>Technology:</td><td>"+ isp.technology_types+"</td>Website:<td></td><td>"+isp.website+"</td></tr>" +
                   "<tr><td>Offers Business Service:</td><td>"+ isp.offers_business_service+"</td>Phone:<td></td><td>"+isp.phone+"</td></tr>"
-                  details.innerHTML =
-                    "<p>Holding Company Name: </p>" +
-                    isp.holding_company +
-                    "<br>" +
-                    "<p>Maximum Download Speed: </p>" +
-                    isp.max_ad_down +
-                    "<br>" +
-                    "<p>Maximum Upload Speed: </p>" +
-                    isp.max_ad_up;
                 }
               })
             });
