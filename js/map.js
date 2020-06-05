@@ -21,7 +21,7 @@ var popup = new mapboxgl.Popup({
 
 map.on("load", function () {
   var layers = map.getStyle().layers;
-  console.log(layers);
+
   // Find the index of the first symbol layer in the map style
   var firstSymbolId;
   for (var i = 0; i < layers.length; i++) {
@@ -186,6 +186,8 @@ map.on("load", function () {
       }
       if (features.length > 0) {
         var uniqueFeatures = getUniqueFeatures(features, "FIPS_cbg");
+        downloadjson(uniqueFeatures);
+        downloadcsv(uniqueFeatures);
 
         isparray = getRDOFpriceLocs(uniqueFeatures);
 
@@ -344,12 +346,6 @@ map.on("load", function () {
 
       /* Add details to the individual listing. */
       var details = listing.appendChild(document.createElement("p"));
-      // details.innerHTML =
-      //   "<p>Maximum Download Speed: </p>" +
-      //   isp.MaxAdDown +
-      //   "<br>" +
-      //   "<p>Maximum Upload Speed: </p>" +
-      //   isp.MaxAdUp;
 
       details.innerHTML =
         "<table>" +
@@ -361,7 +357,7 @@ map.on("load", function () {
         "</td></tr>" +
         "<tr><td>Upload Speed:</td><td>" +
         isp.MaxAdUp +
-        "</td><td>Estimated Population Covered:</td><td>" +
+        "</td><td>Estimated Population:</td><td>" +
         0 +
         // isp.estimated_population_covered +
         "</td></tr>" +
