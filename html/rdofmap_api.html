@@ -9,7 +9,6 @@
     />
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.10.1/mapbox-gl.js"></script>
     <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="../js/histogram.js"></script>
 
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 
@@ -30,53 +29,159 @@
     <!-- <link href="../css/polygon.css" rel="stylesheet" /> -->
     <link href="../css/map2.css" rel="stylesheet" />
     <link href="../css/scroll.css" rel="stylesheet" />
+
     <style></style>
   </head>
   <body>
     <div id="map"></div>
-    <div id="sidebar" class="map-overlay">
+    <div id="sidebar">
       <div class="header">
         <div class="top">
-          <h1 id="title">GetReady</h1>
+          <h1 id="title">Get<strong>Ready</strong></h1>
           <div id="geocoder" class="geocoder"></div>
         </div>
 
         <div id="form" class="uniform" style="display: block;">
           <ul id="statisticBox">
-            <li id="statisticRDOF" class="active">RDOF</li>
-            <li id="statisticACS">ACS</li>
-            <li id="tabData">Data</li>
+            <li id="statisticrdof" class="tab active" onclick="openTab('rdof')">
+              RDOF
+            </li>
+            <li id="statisticacs" class="tab" onclick="openTab('acs')">ACS</li>
+            <li id="statisticdata" class="tab" onclick="openTab('data')">
+              Data
+            </li>
           </ul>
           <div id="seedsBox" class="formSection">
-            <!-- <label for="sources" id="rdofLabel"
-              >Eligible Locations by Census Block Groups</label
-            > -->
-
-            <div id="rdof" class="tabContent active" style="">
-              <div class="notice">
+            <!-- Create RDOF Eligible Locations Plot -->
+            <div id="rdof" class="tabContent active" style="display: block;">
+              <div class="notice" style="display: block;">
                 <h3>RDOF</h3>
                 <p>
                   No sources yet. Press Shift and draw a Square on the map.
                 </p>
               </div>
-              <div class="results" style="">
-                <p>Reserved Price Per Eligible Location Distribution</p>
-                <div id="histo_container" class="svg-container"></div>
+              <div class="results" style="display: none;">
+                <div class="results row" style="display: none;"></div>
+                <div id="rdofBoxleft" class="results column">
+                  <p>Total CBGs Selected: <span>0</span></p>
+                  <p>Average Price/Location: <span>0</span></p>
+                </div>
+                <div id="rdofBoxright" class="results column">
+                  <p>Total Eligible Locations: <span>0</span></p>
+                  <p>Total Reserved Price: <span>0</span></p>
+                </div>
+                <div
+                  id="histo_container"
+                  data-highcharts-chart="0"
+                  style="overflow: hidden;"
+                ></div>
               </div>
+            </div>
+
+            <div id="acs" class="tabContent" style="">
+              <!-- <h3>ACS</h3> -->
+              <div class="notice" style="display: block;">
+                <h3>Social Economic Parameter Summary</h3>
+                <p>
+                  No sources yet. Press Shift and draw a Square on the map.
+                </p>
+              </div>
+              <div id="acsBox" class="results row" style="display: none;">
+                <div id="acsBoxleft" class="results column">
+                  <p>Population: 0</p>
+
+                  <p>Median Household Income: 0</p>
+
+                  <p>% Population with Bachelor Degree: 0</p>
+                </div>
+                <div id="acsBoxright" class="results column">
+                  <p>% Owner Occupied Housing: 0</p>
+
+                  <p>% Population over 65: 0</p>
+                  <p>Number: 0</p>
+                </div>
+              </div>
+            </div>
+
+            <div id="data" class="tabContent">
+              <!-- h3>Data</h3 -->
+              <p>Download the visualised result in various formats.</p>
+              <i class="fa fa-file-code-o" aria-hidden="true"></i>
+              <a
+                download="getready.json"
+                href="blob:https://getready.net/68490f92-c4aa-436d-9692-1c910d4b8914"
+                id="downloadJSON"
+                >Download JSON</a
+              >
+              <i class="fa fa-table" aria-hidden="true"></i>
+              <a
+                download="getready.csv"
+                href="blob:https://getready.net/da98b0da-7df2-4d64-8599-8d84f771b676"
+                id="downloadCSV"
+                >Download CSV</a
+              >
+              <i class="fa fa-map" aria-hidden="true"></i>
+              <a
+                download="getready.png"
+                href="https://getready.net/"
+                id="downloadMap"
+                >Download map</a
+              >
             </div>
           </div>
 
-          <div id="listings" class="listings">
-            <p>
-              All ISPs currently serving in the selected area.
-            </p>
+          <div id="heading">
+            <h2>
+              All ISPs currently serving in the selected areas.
+            </h2>
           </div>
+          <div id="listings" class="listings"></div>
         </div>
       </div>
     </div>
+    <div class="legend" id="legend">
+      <h3>Number of Eligible Locations</h3>
+      <div class="location-legend" id="location-id"></div>
+      <div class="labels-legend">
+        <span class="as-caption">0 </span>
+        <span class="as-caption">1,800+ </span>
+      </div>
+    </div>
+
+    <script
+      src="../js/perfect-scrollbar.min.js"
+      type="text/javascript"
+    ></script>
+
+    <script src="../js/histogram.js" type="text/javascript"></script>
+    <script src="../js/helpers.js" type="text/javascript"></script>
+    <script src="../js/map-api.js" type="text/javascript"></script>
+
+    <!-- <script src="../js/map-api.js" type="text/javascript"></script> -->
+    <script>
+      // this function switch tabs!
+      function openTab(tabName) {
+        var i;
+        var j;
+        var x = document.getElementsByClassName("tabContent");
+        var y = document.getElementsByClassName("tab");
+
+        console.log(y[0].classList);
+        for (j = 0; j < y.length; j++) {
+          y[j].classList.remove("active");
+
+          // x[i].classList.remove("active");
+        }
+
+        for (i = 0; i < x.length; i++) {
+          x[i].style.display = "none";
+        }
+        document.getElementById(tabName).style.display = "block";
+        // document.getElementById(tabName).classList.add("active");
+        document.getElementById("statistic" + tabName).classList.add("active");
+      }
+
+      // this function switch tabs! YEAH!
+    </script>
   </body>
-  <script src="../js/view.js" type="text/javascript"></script>
-  <script src="../js/helpers.js"></script>
-  <script src="../js/map-api.js"></script>
-  <script></script>
 </html>
