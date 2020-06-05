@@ -7,16 +7,16 @@ class View {
     this._model = model;
 
     this._map = new Mapp(this._model, $("#map"));
-    this._netControl = new NetControl(this._model, $("#connections"));
+    // this._netControl = new NetControl(this._model, $("#connections"));
 
-    this._chart = new ExportedCasesChart($("#histo_container"), this._model);
-    this._topTenChart = new TopTenChart($("#topten_container"), this._model);
-    this._topTenChart.highlightTTEntity.add(
-      this._onHighlightEntityRequest.bind(this)
-    );
-    this._topTenChart.playdownTTEntity.add(() =>
-      this._map.showConnections({}, "connectionsSource")
-    );
+    this._chart = new RDOFChart($("#histo_container"), this._model); ///#ExportedCases
+    // this._topTenChart = new TopTenChart($("#topten_container"), this._model);
+    // this._topTenChart.highlightTTEntity.add(
+    //   this._onHighlightEntityRequest.bind(this)
+    // );
+    // this._topTenChart.playdownTTEntity.add(() =>
+    //   this._map.showConnections({}, "connectionsSource")
+    // );
 
     this._initElements();
     this._initTabs();
@@ -26,22 +26,22 @@ class View {
     return this._map;
   }
 
-  showLoading() {
-    this._setState(View.LOADING_STATE);
-  }
+  // showLoading() {
+  //   this._setState(View.LOADING_STATE);
+  // }
 
-  //   showResults() {
-  //     $("#exportedCases").toggleClass(
-  //       "enabled",
-  //       this._model.query.hasCasesInformation() &&
-  //         this._model.query.hasPeriodInformation()
-  //     );
-  //     this._setState(
-  //       this._model.query.isEmpty() ? View.EMPTY_STATE : View.RESULTS_STATE
-  //     );
-  //     this._updateLink(this._$dowloadJSON, this._model.riskResults.asJSONDataURL);
-  //     this._updateLink(this._$dowloadCSV, this._model.riskResults.asCSVDataURL);
-  //   }
+  showResults() {
+    $("#rdof").toggleClass(
+      "enabled",
+      this._model.query.hasCasesInformation() &&
+        this._model.query.hasPeriodInformation()
+    );
+    this._setState(
+      this._model.query.isEmpty() ? View.EMPTY_STATE : View.RESULTS_STATE
+    );
+    this._updateLink(this._$dowloadJSON, this._model.riskResults.asJSONDataURL);
+    this._updateLink(this._$dowloadCSV, this._model.riskResults.asCSVDataURL);
+  }
 
   _setState(state) {
     $("BODY").removeClass(View.STATES.join(" "));
@@ -49,10 +49,10 @@ class View {
     this._scroll.update();
   }
 
-  //   initForm() {
-  //     this._form = new Form(this._model, $("#form"));
-  //     this._form.show();
-  //   }
+  initForm() {
+    this._form = new Form(this._model, $("#form"));
+    this._form.show();
+  }
 
   _initElements() {
     this._$dowloadJSON = $("#downloadJSON");
@@ -72,12 +72,14 @@ class View {
     this._scroll = new PerfectScrollbar("#sidebar");
   }
 
+  //change riskresults
   _onHighlightEntityRequest(entityId) {
     this._map.showConnections(
-      { [entityId]: this._model.riskResults.getIncomingConnections(entityId) },
+      { [entityId]: this._model.riskResults.getIncomingConnections(entityId) }, //change riskresults
       "connectionsSource"
     );
   }
+  //change riskresults
 
   _onTitleClick() {
     this._model.reset();
@@ -133,6 +135,7 @@ class View {
 }
 
 View.RESULTS_STATE = "results";
-View.LOADING_STATE = "loading";
+// View.LOADING_STATE = "loading";
 View.EMPTY_STATE = "empty";
-View.STATES = [View.LOADING_STATE, View.RESULTS_STATE, View.EMPTY_STATE];
+View.STATES = [View.RESULTS_STATE, View.EMPTY_STATE];
+// View.STATES = [View.LOADING_STATE, View.RESULTS_STATE, View.EMPTY_STATE];

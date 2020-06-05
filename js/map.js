@@ -12,7 +12,7 @@ var map = new mapboxgl.Map({
 map.boxZoom.disable();
 var dataurl =
   "https://raw.githubusercontent.com/brookefzy/readynet/master/data/03_isp_sample.csv";
-map.addControl(new mapboxgl.NavigationControl(), "top-left");
+map.addControl(new mapboxgl.NavigationControl(), "bottom-left");
 
 // add popup
 var popup = new mapboxgl.Popup({
@@ -189,11 +189,75 @@ map.on("load", function () {
 
         isparray = getRDOFpriceLocs(uniqueFeatures);
 
-        document.getElementById("histo_container").innerHTML = "";
+        if (isparray.length > 0) {
+          var k = document.getElementsByClassName("notice");
+          var allresults = document.getElementsByClassName("results");
+          var i;
+          for (i = 0; i < k.length; i++) {
+            k[i].style.display = "none";
+          }
+          for (i = 0; i < allresults.length; i++) {
+            allresults[i].style.display = "inline-block";
+          }
+          //////////////////////////////////////////////////////////////////////
+          // Change the RDOF Tab////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////////
+          document.getElementsByClassName("row")[0].style.display = "flex";
+          document.getElementById("rdofBoxleft").className = "results left";
+          document.getElementById("rdofBoxright").className = "results right";
 
-        createhistogram(isparray);
+          document.getElementById("rdofBoxleft").innerHTML =
+            "<p>Total CBGs Selected: <br><span class = 'strong'>" +
+            uniqueFeatures.length +
+            "</span></p><p>Average Price/Location: <br><span class = 'strong'>" +
+            currencyFormat(
+              getRDOFTotal(uniqueFeatures) /
+                (getLocationTotal(uniqueFeatures) + 1)
+            ) +
+            "</span></p>";
 
-        cbgfips = getFIPS(uniqueFeatures);
+          document.getElementById("rdofBoxright").innerHTML =
+            "<p>Total Eligible Locations:  <br><span class = 'strong'>" +
+            formatNumber(getLocationTotal(uniqueFeatures)) +
+            "</span></p><p>Total Reserved Price: <br><span class = 'strong'>" +
+            currencyFormat(getRDOFTotal(uniqueFeatures)) +
+            "</span></p>";
+
+          document.getElementById("histo_container").innerHTML = "";
+
+          createhistogram(isparray);
+
+          //////////////////////////////////////////////////////////////////////
+          // Change the ACS Tab////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////////
+          document.getElementsByClassName("row")[1].style.display = "flex";
+          document.getElementById("acsBoxleft").className = "results left";
+          document.getElementById("acsBoxright").className = "results right";
+
+          document.getElementById("acsBoxleft").innerHTML =
+            "<p>Population: <br><span class = 'strong'>" +
+            getTotPop(uniqueFeatures) +
+            "</span></p><p>Median Household Income: <br><span class = 'strong'>" +
+            getincome(uniqueFeatures) +
+            "</span></p><p>% Owner Occupied Housing: <br><span class = 'strong'>" +
+            getowner(uniqueFeatures) +
+            "</span></p>";
+
+          document.getElementById("acsBoxright").innerHTML =
+            "<p>% with Bachelor Degree: <br><span class = 'strong'>" +
+            getEdu(uniqueFeatures) +
+            "</span></p><p>% over 65: <br><span class = 'strong'>" +
+            getsenior(uniqueFeatures) +
+            "</span></p><p>Number of ISPs: <br><span class = 'strong'>" +
+            getISPsum(uniqueFeatures) +
+            "</span></p>";
+
+          cbgfips = getFIPS(uniqueFeatures);
+        }
+
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////ISPs DATA///////////////////////////////
+        /////////////////////////////////////////////////////////////////
 
         d3.csv(dataurl).then(function (isps) {
           // console.log(isps)
@@ -202,6 +266,16 @@ map.on("load", function () {
           // console.log(uniqisps);
           buildISPList(uniqisps);
         });
+
+        // d3.json(dataurl).then(function (isps) {
+        //   var query = { FIPS_cbg: cbgfips };
+        //   var selisps = isps.filter(search, query);
+
+        //   function search(user) {
+        //     return Object.keys(this).every((key) => user[key] === this[key]);
+        //   }
+        //   buildISPList(selisps);
+        // });
 
         cbgs = uniqueFeatures;
       }
@@ -262,19 +336,49 @@ map.on("load", function () {
       link.href = "#";
       link.className = "title";
       link.id = "link-" + isp.id;
-      link.innerHTML = isp.DBAName;
+      link.innerHTML =
+        isp.DBAName +
+        "  <span class = 'holding'>" +
+        isp.HoldingCompanyName +
+        "</span>";
 
       /* Add details to the individual listing. */
-      var details = listing.appendChild(document.createElement("h5"));
+      var details = listing.appendChild(document.createElement("p"));
+      // details.innerHTML =
+      //   "<p>Maximum Download Speed: </p>" +
+      //   isp.MaxAdDown +
+      //   "<br>" +
+      //   "<p>Maximum Upload Speed: </p>" +
+      //   isp.MaxAdUp;
+
       details.innerHTML =
-        "<p>Holding Company Name: </p>" +
-        isp.HoldingCompanyName +
-        "<br>" +
-        "<p>Maximum Download Speed: </p>" +
+        "<table>" +
+        "<tr><td>Download Speed:</td><td>" +
         isp.MaxAdDown +
-        "<br>" +
-        "<p>Maximum Upload Speed: </p>" +
-        isp.MaxAdUp;
+        "</td><td>Number of States:</td><td>" +
+        0 +
+        // isp.number_of_states +
+        "</td></tr>" +
+        "<tr><td>Upload Speed:</td><td>" +
+        isp.MaxAdUp +
+        "</td><td>Estimated Population Covered:</td><td>" +
+        0 +
+        // isp.estimated_population_covered +
+        "</td></tr>" +
+        "<tr><td>Technology:</td><td>" +
+        0 +
+        // isp.technology_types +
+        "</td><td>Website:</td><td>" +
+        "www.isp." +
+        // isp.website +
+        "</td></tr>" +
+        "<tr><td>Offers Business Service:</td><td>" +
+        "Not Known" +
+        // isp.offers_business_service +
+        "</td><td>Phone:</td><td>" +
+        "(215) 000000" +
+        // isp.phone +
+        "</td></tr></table>";
     });
   }
 

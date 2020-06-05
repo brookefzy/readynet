@@ -5,15 +5,17 @@ function createhistogram(data) {
     x: data,
     type: "histogram",
     opacity: 0.9,
+    text: data.map(String),
+    textposition: "auto",
 
-    marker: { color: "#da587d" },
+    marker: { color: "#a860d2" },
     // xbins: { size: 10 },#4e5dc1
   };
   var data = [trace];
   var layout = {
-    width: 260,
-    height: 300,
-    margin: { t: 30, r: 50, b: 50, l: 60 },
+    width: 400,
+    // height: 300,
+    margin: { t: 0, r: 15, b: 95, l: 45 },
 
     bargap: 0.1,
     paper_bgcolor: "rgba(0,0,0,0)",
@@ -25,14 +27,14 @@ function createhistogram(data) {
       title: "Reserve Price Per Locations",
       gridcolor: "rgba(0,0,0,0)",
       zerolinecolor: "rgba(0,0,0,0)",
-      color: "white",
+      color: "rgba(255,255,255,0.5)",
     },
     yaxis: {
       automargin: true,
       title: "Number of CBGs",
-      gridcolor: "rgba(0,0,0,0)",
-      zerolinecolor: "white",
-      color: "white",
+      gridcolor: "rgba(255,255,255,0.1)",
+      zerolinecolor: "rgba(255,255,255,0.3)",
+      color: "rgba(255,255,255,0.5)",
     },
   };
   Plotly.newPlot("histo_container", data, layout);
