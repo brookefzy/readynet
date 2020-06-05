@@ -12,7 +12,7 @@ var map = new mapboxgl.Map({
 map.boxZoom.disable();
 var dataurl =
   "https://raw.githubusercontent.com/brookefzy/readynet/master/data/03_isp_sample.csv";
-map.addControl(new mapboxgl.NavigationControl(), "top-left");
+map.addControl(new mapboxgl.NavigationControl(), "bottom-left");
 
 // add popup
 var popup = new mapboxgl.Popup({
@@ -187,13 +187,77 @@ map.on("load", function () {
       if (features.length > 0) {
         var uniqueFeatures = getUniqueFeatures(features, "FIPS_cbg");
 
-        var isparray = getRDOFpriceLocs(uniqueFeatures);
+        isparray = getRDOFpriceLocs(uniqueFeatures);
 
-        document.getElementById("histo_container").innerHTML = "";
+        if (isparray.length > 0) {
+          var k = document.getElementsByClassName("notice");
+          var allresults = document.getElementsByClassName("results");
+          var i;
+          for (i = 0; i < k.length; i++) {
+            k[i].style.display = "none";
+          }
+          for (i = 0; i < allresults.length; i++) {
+            allresults[i].style.display = "inline-block";
+          }
+          //////////////////////////////////////////////////////////////////////
+          // Change the RDOF Tab////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////////
+          document.getElementsByClassName("row")[0].style.display = "flex";
+          document.getElementById("rdofBoxleft").className = "results left";
+          document.getElementById("rdofBoxright").className = "results right";
 
-        createhistogram(isparray);
+          document.getElementById("rdofBoxleft").innerHTML =
+            "<p>Total CBGs Selected: <br><span class = 'strong'>" +
+            uniqueFeatures.length +
+            "</span></p><p>Average Price/Location: <br><span class = 'strong'>" +
+            currencyFormat(
+              getRDOFTotal(uniqueFeatures) /
+                (getLocationTotal(uniqueFeatures) + 1)
+            ) +
+            "</span></p>";
 
-        var cbgfips = getFIPS(uniqueFeatures);
+          document.getElementById("rdofBoxright").innerHTML =
+            "<p>Total Eligible Locations:  <br><span class = 'strong'>" +
+            formatNumber(getLocationTotal(uniqueFeatures)) +
+            "</span></p><p>Total Reserved Price: <br><span class = 'strong'>" +
+            currencyFormat(getRDOFTotal(uniqueFeatures)) +
+            "</span></p>";
+
+          document.getElementById("histo_container").innerHTML = "";
+
+          createhistogram(isparray);
+
+          //////////////////////////////////////////////////////////////////////
+          // Change the ACS Tab////////////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////////
+          document.getElementsByClassName("row")[1].style.display = "flex";
+          document.getElementById("acsBoxleft").className = "results left";
+          document.getElementById("acsBoxright").className = "results right";
+
+          document.getElementById("acsBoxleft").innerHTML =
+            "<p>Population: <br><span class = 'strong'>" +
+            getTotPop(uniqueFeatures) +
+            "</span></p><p>Median Household Income: <br><span class = 'strong'>" +
+            getincome(uniqueFeatures) +
+            "</span></p><p>% Owner Occupied Housing: <br><span class = 'strong'>" +
+            getowner(uniqueFeatures) +
+            "</span></p>";
+
+          document.getElementById("acsBoxright").innerHTML =
+            "<p>% with Bachelor Degree: <br><span class = 'strong'>" +
+            getEdu(uniqueFeatures) +
+            "</span></p><p>% over 65: <br><span class = 'strong'>" +
+            getsenior(uniqueFeatures) +
+            "</span></p><p>Number of ISPs: <br><span class = 'strong'>" +
+            getISPsum(uniqueFeatures) +
+            "</span></p>";
+
+          cbgfips = getFIPS(uniqueFeatures);
+        }
+
+        /////////////////////////////////////////////////////////////////
+        /////////////////////////ISPs DATA///////////////////////////////
+        /////////////////////////////////////////////////////////////////
 
         fetch('http://localhost:3000/census-block-groups/isps', {
           method: 'POST',
@@ -222,18 +286,19 @@ map.on("load", function () {
 
                   /* Add the link to the individual listing created above. */
                   var link = listing.appendChild(document.createElement("a"));
-                  link.href = isp.website;
+                  link.href = 'http://' + isp.website;
                   link.className = "title";
                   link.id = "link-" + isp.provider_id;
+                  link.target = '_blank';
                   link.innerHTML = isp.dba;
 
                   /* Add details to the individual listing. */
                   var details = listing.appendChild(document.createElement("h5"));
-                  details.innerHTML = "<table>" +
-                  "<tr><td>Download Speed:</td><td>"+ isp.max_ad_down+"</td>Number of States Covered:<td></td><td>"+isp.number_of_states+"</td></tr>" +
-                  "<tr><td>Upload Speed:</td><td>"+ isp.max_ad_up+"</td>Estimated Population Covered:<td></td><td>"+isp.estimated_population_covered+"</td></tr>" +
-                  "<tr><td>Technology:</td><td>"+ isp.technology_types+"</td>Website:<td></td><td>"+isp.website+"</td></tr>" +
-                  "<tr><td>Offers Business Service:</td><td>"+ isp.offers_business_service+"</td>Phone:<td></td><td>"+isp.phone+"</td></tr>"
+                  details.innerHTML = '<table>' +
+                  `<tr><td>Download Speed:</td><td>${isp.max_ad_down}</td><td>Number of States Covered:</td><td>${isp.number_of_states}</td></tr>` +
+                  `<tr><td>Upload Speed:</td><td>${isp.max_ad_up}</td><td>Estimated Population Covered:</td><td>${isp.population_served}</td></tr>` +
+                  `<tr><td>Technology:</td><td>${isp.technology_types}</td><td>Website:</td><td>${isp.website}</td></tr>` +
+                  `<tr><td>Offers Business Service:</td><td>${isp.business != 0 ? 'Yes' : 'No'}</td><td>Phone:</td><td>${isp.phone}</td></tr>`
                 }
               })
             });
@@ -242,15 +307,6 @@ map.on("load", function () {
           .catch((error) => {
             console.error('Error:', error);
           });
-
-
-        // d3.csv(dataurl).then(function (isps) {
-        //   // console.log(isps)
-        //   var selisps = isps.filter((i) => cbgfips.includes(i.FIPS_cbg));
-        //   var uniqisps = uniqueISPs(selisps);
-        //   // console.log(uniqisps);
-        //   buildISPList(uniqisps);
-        // });
 
         cbgs = uniqueFeatures;
       }
@@ -294,38 +350,7 @@ map.on("load", function () {
   //     }
   //   });
 
-  // var listings = document.getElementById("listings");
-  // function buildISPList(data) {
-  //   listings.innerHTML = "";
-  //   data.forEach(function (isp, i) {
-  //     /* Add a new listing section to the listing. */
 
-  //     var listing = listings.appendChild(document.createElement("div"));
-  //     /* Assign a unique `id` to the listing. */
-  //     listing.id = "listing-" + isp.id;
-  //     /* Assign the `item` class to each listing for styling. */
-  //     listing.className = "item";
-
-  //     /* Add the link to the individual listing created above. */
-  //     var link = listing.appendChild(document.createElement("a"));
-  //     link.href = "#";
-  //     link.className = "title";
-  //     link.id = "link-" + isp.id;
-  //     link.innerHTML = isp.DBAName;
-
-  //     /* Add details to the individual listing. */
-  //     var details = listing.appendChild(document.createElement("h5"));
-  //     details.innerHTML =
-  //       "<p>Holding Company Name: </p>" +
-  //       isp.HoldingCompanyName +
-  //       "<br>" +
-  //       "<p>Maximum Download Speed: </p>" +
-  //       isp.MaxAdDown +
-  //       "<br>" +
-  //       "<p>Maximum Upload Speed: </p>" +
-  //       isp.MaxAdUp;
-  //   });
-  // }
 
   map.on("mousemove", function (e) {
     var features = map.queryRenderedFeatures(e.point, {
