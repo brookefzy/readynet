@@ -186,8 +186,8 @@ map.on("load", function () {
       }
       if (features.length > 0) {
         var uniqueFeatures = getUniqueFeatures(features, "FIPS_cbg");
-        downloadjson(uniqueFeatures);
-        downloadcsv(uniqueFeatures);
+        // downloadjson(uniqueFeatures);
+        // downloadcsv(uniqueFeatures);
 
         isparray = getRDOFpriceLocs(uniqueFeatures);
 
