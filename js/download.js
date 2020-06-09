@@ -42,7 +42,7 @@ function convertArrayOfObjectsToCSV(args) {
 }
 
 function downloadcsv(features) {
-  var data, filename, link;
+  var data, filename;
   var csv = convertArrayOfObjectsToCSV({
     data: features,
   });
@@ -66,18 +66,3 @@ function downloadcsv(features) {
   var container = document.getElementById("downloadCSV");
   container.replaceWith(a);
 }
-
-// $(function () {
-//   $("#downloadMap").click(function () {
-//     html2canvas($("#map"), {
-//       onrendered: function (canvas) {
-//         theCanvas = canvas;
-//         document.body.appendChild(canvas);
-
-//         canvas.toBlob(function (blob) {
-//           saveAs(blob, "map.png");
-//         });
-//       },
-//     });
-//   });
-// });

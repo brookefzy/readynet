@@ -78,7 +78,7 @@ function getsenior(features) {
 
 function getincome(features) {
   array = features.map((d) => dealnan(d.properties.income_m_h));
-  return formatNumber2(array.reduce((a, b) => a + b, 0) / array.length);
+  return currencyFormat(array.reduce((a, b) => a + b, 0) / array.length);
 }
 
 function getowner(features) {
@@ -89,4 +89,41 @@ function getowner(features) {
 function getISPsum(features) {
   array = features.map((d) => dealnan(d.properties.num_isp));
   return formatNumber(array.reduce((a, b) => a + b, 0));
+}
+
+function generatejson(features) {
+  var data =
+    "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(features));
+  return data;
+}
+
+function convertArrayOfObjectsToCSV(args) {
+  var result, ctr, keys, columnDelimiter, lineDelimiter, data;
+
+  data = args.data || null;
+  if (data == null || !data.length) {
+    return null;
+  }
+
+  columnDelimiter = args.columnDelimiter || ",";
+  lineDelimiter = args.lineDelimiter || "\n";
+
+  keys = Object.keys(data[0]);
+
+  result = "";
+  result += keys.join(columnDelimiter);
+  result += lineDelimiter;
+
+  data.forEach(function (item) {
+    ctr = 0;
+    keys.forEach(function (key) {
+      if (ctr > 0) result += columnDelimiter;
+
+      result += item[key];
+      ctr++;
+    });
+    result += lineDelimiter;
+  });
+
+  return result;
 }

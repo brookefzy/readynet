@@ -25,10 +25,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 
-    <!-- <link href="../css/polygon.css" rel="stylesheet" /> -->
-    <link href="../css/map2.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
 
     <style></style>
   </head>
@@ -37,7 +35,12 @@
     <div id="sidebar">
       <div class="header">
         <div class="top">
-          <h1 id="title">Get<strong>Ready</strong></h1>
+          <a class="logo" href="https://ready.net/">
+            <img src="../img/ready-logo.png" alt="READY Project" />
+          </a>
+          <h1 id="title" href="https://ready.net/">
+            Get<strong>Ready</strong>
+          </h1 alt="Ready">
           <div id="geocoder" class="geocoder"></div>
         </div>
 
@@ -55,7 +58,7 @@
             <!-- Create RDOF Eligible Locations Plot -->
             <div id="rdof" class="tabContent active" style="display: block;">
               <div class="notice" style="display: block;">
-                <h3>RDOF</h3>
+                <h3>Rural Digital Opportunity Fund</h3>
                 <p>
                   No sources yet. Press Shift and draw a Square on the map.
                 </p>
@@ -104,7 +107,15 @@
             </div>
 
             <div id="data" class="tabContent">
-              <!-- h3>Data</h3 -->
+              <iframe
+                class="airtable-embed"  
+                src="https://airtable.com/embed/shrfrsVYcX97MueBR?backgroundColor=purple"
+                frameborder="0"
+                onmousewheel=""
+                width="100%"
+                height="533"
+                style="background: transparent; border: 1px solid #ccc;"
+              ></iframe>
               <p>Download the visualised result in various formats.</p>
               <i class="fa fa-file-code-o" aria-hidden="true"></i>
               <a download="getready.json" href="" id="downloadJSON"
@@ -123,16 +134,64 @@
               >
             </div>
           </div>
-
-          <div id="heading">
-            <h2>
-              All ISPs currently serving in the selected areas.
-            </h2>
-          </div>
-          <div id="listings" class="listings"></div>
         </div>
       </div>
+
+
+      <ul id="tabs">
+        <li id="tabcover" class="tab2 active" onclick="openTab2('cover')">About</li>
+        <li id="tabISPlisting" class="tab2" onclick="openTab2('ISPlisting')">ISP Listing</li>
+      </ul>
+      <div id="cover" class="tabContent2 active" style="display: block;">
+        <h3>Welcome to GetReady</h3>
+        <p>
+          GetReady is a web-mapping tool that aims at helping local Internet Service Providers
+          identify growth potential.
+        </p>
+      
+        <p>
+          Based on the available data, we show summary estimates by your area of interests.
+        </p>
+      
+        <p>
+          · <b>RDOF:</b> <a href="https://www.fcc.gov/reports-research/maps/auction-904-preliminary-eligible-areas/">Rural Digital Opportunity Fund</a>. The tool summarizes the current eligible locations
+          and total funding available for your selected census block groups.
+        </p>
+      
+        <p>
+          · <b>ACS:</b> American Community Survey (2013-2018 5 year estimates). We also present summary statistis
+          from census data to help you decide the opportunity and risks in pursing funding in a given context.
+        </p>
+        <p>
+          · <b>ISP Listing:</b> We realized that many local ISPs are underrepresented. Thus here we also want to
+          show a comprehensive lists of ISPs that are working in the areas to your interests. They might be potential
+          partern. In the last couple months, we have been pulling data from many different resources including FCC's
+          Form 477, individual ISP's website, etc. We are hoping to build a comprehensive list of ISPs in the near future.
+          Let us know if you find mistakes in our data.
+        </p>
+      
+        <p>
+          · <b>Data Download:</b>
+          After you draw a square and query the areas of interests, hover over each individual census block group,
+          you will see details of each selected census block group. You are welcome to download the data shown on
+          the screen. Please fill in the comment survey to help us grow.
+        </p>
+      
+        <p>
+          GetReady platform is supported by <a href="https://ready.net/">Ready.net</a>.
+        </p>
+      </div>
+      
+        <div id="ISPlisting" class="tabContent2" style="">
+          <h2>
+            All ISPs currently serving in the selected areas.
+          </h2>
+          <div id="listings" class="listings"></div>
+        </div>
     </div>
+
+
+
     <div class="legend" id="legend">
       <h3>Number of Eligible Locations</h3>
       <div class="location-legend" id="location-id"></div>
@@ -142,14 +201,29 @@
       </div>
     </div>
 
+
+        <div class="countycontainer">
+          <div id="pd">
+            <h4>RDOF @ Counties</h4>
+            <h4>Hover over a county!</h4>
+            <h5>
+  
+              <p>Eligible Locations:</p>
+              0<br />
+              <p>Reserved Price:</p>
+              0<br />
+              </h5>
+          </div>
+        </div>
+
     <script
       src="../js/perfect-scrollbar.min.js"
       type="text/javascript"
     ></script>
 
     <script src="../js/histogram.js" type="text/javascript"></script>
-    <script src="../js/download.js" type="text/javascript"></script>
     <script src="../js/helpers.js" type="text/javascript"></script>
+    <script src="../js/download.js" type="text/javascript"></script>
     <script src="../js/map.js" type="text/javascript"></script>
 
     <!-- <script src="../js/map-api.js" type="text/javascript"></script> -->
@@ -164,19 +238,32 @@
         console.log(y[0].classList);
         for (j = 0; j < y.length; j++) {
           y[j].classList.remove("active");
-
-          // x[i].classList.remove("active");
         }
 
         for (i = 0; i < x.length; i++) {
           x[i].style.display = "none";
         }
         document.getElementById(tabName).style.display = "block";
-        // document.getElementById(tabName).classList.add("active");
         document.getElementById("statistic" + tabName).classList.add("active");
       }
 
-      // this function switch tabs! YEAH!
+            function openTab2(tabName) {
+                var i;
+                var j;
+                var x = document.getElementsByClassName("tabContent2");
+                var y = document.getElementsByClassName("tab2");
+
+                console.log(y[0].classList);
+                for (j = 0; j < y.length; j++) {
+                  y[j].classList.remove("active");
+                }
+
+                for (i = 0; i < x.length; i++) {
+                  x[i].style.display = "none";
+                }
+                document.getElementById(tabName).style.display = "block";
+                document.getElementById("tab" + tabName).classList.add("active");
+              }
     </script>
   </body>
 </html>

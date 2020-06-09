@@ -186,8 +186,9 @@ map.on("load", function () {
       }
       if (features.length > 0) {
         var uniqueFeatures = getUniqueFeatures(features, "FIPS_cbg");
-        // downloadjson(uniqueFeatures);
+
         // downloadcsv(uniqueFeatures);
+        // data = generatejson(uniqueFeatures)
 
         isparray = getRDOFpriceLocs(uniqueFeatures);
 
@@ -201,9 +202,30 @@ map.on("load", function () {
           for (i = 0; i < allresults.length; i++) {
             allresults[i].style.display = "inline-block";
           }
+
+          //////////////////////////////////////////////////////////////////////
+          // Download Json and CSV file/////////////////////////////////////////
+          //////////////////////////////////////////////////////////////////////
+
+          jsonfordownload = generatejson(uniqueFeatures);
+          csv = convertArrayOfObjectsToCSV({
+            data: uniqueFeatures,
+          });
+          if (!csv.match(/^data:text\/csv/i)) {
+            csv = "data:text/csv;charset=utf-8," + csv;
+          }
+          csvfordownload = encodeURI(csv);
+
+          document.getElementById("downloadCSV").href =
+            "data:" + csvfordownload;
+
+          document.getElementById("downloadJSON").href =
+            "data:" + jsonfordownload;
+
           //////////////////////////////////////////////////////////////////////
           // Change the RDOF Tab////////////////////////////////////////////////
           //////////////////////////////////////////////////////////////////////
+
           document.getElementsByClassName("row")[0].style.display = "flex";
           document.getElementById("rdofBoxleft").className = "results left";
           document.getElementById("rdofBoxright").className = "results right";
@@ -299,27 +321,27 @@ map.on("load", function () {
     map.dragPan.enable();
   }
 
-  //   map.on("mousemove", function (e) {
-  //     var counties = map.queryRenderedFeatures(e.point, {
-  //       layers: ["rdofcounty"],
-  //     });
+  map.on("mousemove", function (e) {
+    var counties = map.queryRenderedFeatures(e.point, {
+      layers: ["rdofcounty"],
+    });
 
-  //     if (counties.length > 0) {
-  //       // console.log(counties)
-  //       document.getElementById("pd").innerHTML =
-  //         "<h3><strong>" +
-  //         counties[0].properties.county_nam +
-  //         " County</h3></strong>" +
-  //         "<h5><p>Eligible Locations: <strong></p>" +
-  //         formatNumber(counties[0].properties.location) +
-  //         "</strong><p> Total Reserved Price: <strong></p>" +
-  //         currencyFormat(counties[0].properties.price) +
-  //         "</strong></h5>";
-  //     } else {
-  //       document.getElementById("pd").innerHTML =
-  //         "<h3>Hover over a county!</h3><h5><p>Eligible Locations: </p>0<br><p>Reserved Price: </p>0<br></h5>";
-  //     }
-  //   });
+    if (counties.length > 0) {
+      // console.log(counties)
+      document.getElementById("pd").innerHTML =
+        "<h4><strong>" +
+        counties[0].properties.county_nam +
+        " County</h4></strong>" +
+        "<h5><p>Eligible Locations: <strong></p>" +
+        formatNumber(counties[0].properties.location) +
+        "</strong><p> Total Reserved Price: <strong></p>" +
+        currencyFormat(counties[0].properties.price) +
+        "</strong></h5>";
+    } else {
+      document.getElementById("pd").innerHTML =
+        "<h3>Hover over a county!</h3><h5><p>Eligible Locations: </p>0<br><p>Reserved Price: </p>0<br></h5>";
+    }
+  });
 
   var listings = document.getElementById("listings");
   function buildISPList(data) {
