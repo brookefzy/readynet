@@ -1,0 +1,29 @@
+.button {
+  /* background-color: #212121; */
+  z-index: 1;
+  color: white;
+  /* padding: 20px 32px; */
+
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px;
+  cursor: pointer;
+}
+.sortbutton {
+  background-color: #212121;
+  padding: 6px;
+  margin: 5px;
+  color: white;
+  border: 0.1px solid rgb(187, 187, 187, 0.4); /* white*/
+}
+
+.reportbutton {
+  background-color: #212121;
+  padding: 6px;
+  margin: 5px;
+  color: #01f1e3;
+  border: 0.1px solid #01f1e3; /* white*/
+  text-align: center;
+}

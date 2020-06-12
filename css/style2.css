@@ -1,0 +1,281 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Roboto;
+  color: #fff;
+  font-size: 13px;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+#sidebar {
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  border-radius: 2px;
+  height: calc(100% - 40px);
+  /* !important; */
+  margin: 15px;
+  position: absolute;
+  /* !important; */
+  width: 450px;
+  top: 0;
+  z-index: 1001;
+  overflow-y: auto;
+}
+
+#sidebar .header {
+  background-color: #212121;
+  overflow: hidden;
+  padding: 20px;
+  min-height: 100px;
+}
+
+.top {
+  margin: -20px;
+  padding: 20px 20px 0 20px;
+  /* width: 500px; */
+  border-radius: 2px 2px 0 0;
+  position: fixed;
+  transition: 0.3s;
+  z-index: 9;
+  background-color: #212121;
+  height: 260px;
+  width: 450px;
+}
+
+.top.shadow {
+  box-shadow: 0px 0px 12px 0px rgba(0, 0, 0, 0.5);
+}
+
+.top .logo {
+  position: absolute;
+  height: 59px;
+  right: 30px;
+  top: 30px;
+}
+
+.top .logo:hover {
+  opacity: 0.8;
+}
+
+.top .logo IMG {
+  border: 0;
+  height: 60%;
+}
+
+h1 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 24px;
+  color: #fff;
+  margin: 10px;
+  font-weight: 500;
+  line-height: 30px;
+}
+
+h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  color: #fff;
+
+  margin: 5px;
+  margin-top: 30px;
+  font-weight: 400;
+  /* line-height: 30px; */
+}
+
+h3 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 12px;
+  color: #fff;
+
+  margin: 10px;
+
+  font-weight: 400;
+}
+h4 {
+  font-family: "Montserrat", sans-serif;
+  font-size: 14px;
+  color: #fff;
+
+  margin: 5px;
+  /* margin-top: 30px; */
+  font-weight: 500;
+  /* line-height: 30px; */
+}
+
+/* geocoder */
+.top .geocoder {
+  position: absolute;
+  /* z-index: 1; */
+
+  height: 59px;
+  left: 10px;
+  margin: 10px;
+  top: 70px;
+  width: 400px;
+}
+
+.top .summary {
+  position: absolute;
+  /* z-index: 1; */
+  /* height: 59px; */
+  left: 10px;
+  margin: 10px;
+  top: 120px;
+  /* width: 100%; */
+}
+
+.top .headline {
+  position: absolute;
+  /* z-index: 1; */
+  height: 59px;
+  left: 10px;
+  margin: 10px;
+  top: 140px;
+  /* width: 100%; */
+}
+
+.top .buttons {
+  position: absolute;
+  /* z-index: 1; */
+  height: 30px;
+  left: 10px;
+  margin: 10px;
+  top: 200px;
+  /* width: 100%; */
+}
+.mapboxgl-ctrl-geocoder {
+  min-width: 100%;
+  border-radius: 0;
+  background-color: #212121;
+  /* border: 1px solid rgba(0, 0, 0, 0.15); */
+
+  border: 0px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+
+  /* box-shadow: 1px 1px 1px 0 rgba(255, 255, 255, 0.4); */
+  /* border-color: #aaa; */
+}
+.mapboxgl-ctrl-geocoder input {
+  padding: 6px 35px;
+  color: #aaa;
+  border: 0px solid rgba(255, 255, 255, 0.1);
+  border-bottom: #aaa;
+
+  /* background-color: black; */
+}
+
+.mapboxgl-ctrl-geocoder--input:focus {
+  color: #404040; /* fallback */
+  color: #fff;
+  outline: 0;
+  box-shadow: none;
+  outline: thin dotted;
+}
+.geocoder-dropdown-text {
+  color: #fff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: larger;
+  background-color: #212121;
+}
+.listings {
+  /* height: 100%; */
+  margin-top: 30px;
+  overflow: auto;
+  padding-bottom: 60px;
+}
+
+.listings .item {
+  display: block;
+  border-top: 4px solid #404040;
+  padding: 10px;
+  text-decoration: none;
+}
+
+.listings .item:last-child {
+  border-bottom: none;
+}
+
+.listings .item .title {
+  display: block;
+  color: #f8f8f8;
+  font-weight: 600;
+}
+
+.listings .item .title small {
+  font-weight: 400;
+}
+
+.listings .item.active .title,
+.listings .item .title:hover {
+  color: #b0b6e8;
+}
+
+.listings .item.active {
+  background-color: #f8f8f8;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 3px;
+  border-left: 0;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-track {
+  background: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(95, 37, 107, 0.25);
+
+  border-radius: 0;
+}
+.tabContent {
+  position: absolute;
+  top: 240px;
+  display: inline-block;
+  line-height: 18px;
+  margin: 0;
+  width: 90%;
+
+  text-align: justify;
+  box-sizing: border-box;
+}
+
+BODY.ready #cover,
+BODY.empty #cover {
+  display: block;
+}
+
+#sidebar .footer {
+  background-color: #212121;
+  overflow: hidden;
+  /* padding: 20px; */
+  min-height: 50px;
+
+  bottom: 0px;
+}
+
+.bottom {
+  margin: -20px;
+  padding: 20px 20px 20px -20px;
+  /* width: 500px; */
+  border-radius: 2px 2px 0 0;
+  position: fixed;
+  transition: 0.3s;
+  z-index: 9;
+  background-color: #212121;
+  height: 60px;
+  width: 450px;
+  bottom: 40px;
+}
