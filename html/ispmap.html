@@ -110,6 +110,48 @@
         center: [-85.7129, 41.88],
       });
 
+      var canvas = map.getCanvasContainer();
+      //initiate a geojson file
+      var geojson = {
+          'type': 'FeatureCollection',
+          'features': [
+            {
+              'type': 'Feature',
+              'geometry': {
+                'type': 'Point',
+                'coordinates': [0, 0]
+              }
+            }
+          ]
+        };
+
+        function onMove(e) {
+            var coords = e.lngLat;
+
+            // Set a UI indicator for dragging.
+            canvas.style.cursor = 'grabbing';
+
+            // Update the Point feature in `geojson` coordinates
+            // and call setData to the source layer `point` on it.
+            geojson.features[0].geometry.coordinates = [coords.lng, coords.lat];
+            map.getSource('point').setData(geojson);
+          }
+
+          function onUp(e) {
+            var coords = e.lngLat;
+
+            // Print the coordinates of where the point had
+            // finished being dragged to on the map.
+            coordinates.style.display = 'block';
+            coordinates.innerHTML =
+              'Longitude: ' + coords.lng + '<br />Latitude: ' + coords.lat;
+            canvas.style.cursor = '';
+
+            // Unbind mouse/touch events
+            map.off('mousemove', onMove);
+            map.off('touchmove', onMove);
+          }
+
       var dataurl =
         "https://raw.githubusercontent.com/brookefzy/readynet/master/data/03_isp_sample.csv";
       var cbgs = [];
@@ -122,21 +164,57 @@
           zoom: 12,
         });
 
+        var layers = map.getStyle().layers;
+
+        // Find the index of the first symbol layer in the map style
+        var firstSymbolId;
+        for (var i = 0; i < layers.length; i++) {
+          if (layers[i].type === "symbol") {
+            firstSymbolId = layers[i].id;
+            break;
+          }
+        }
+
         document.getElementById("geocoder").appendChild(geocoder.onAdd(map));
 
         var marker = new mapboxgl.Marker({ color: "#01F1E3" });
 
-        geocoder.on("result", function (data) {
-          var layers = map.getStyle().layers;
+        // map.addSource('point', {
+        //   'type': 'geojson',
+        //   'data': geojson
+        // });
 
-          // Find the index of the first symbol layer in the map style
-          var firstSymbolId;
-          for (var i = 0; i < layers.length; i++) {
-            if (layers[i].type === "symbol") {
-              firstSymbolId = layers[i].id;
-              break;
+        // map.addLayer({
+        //   'id': 'point',
+        //   'type': 'circle',
+        //   'source': 'point',
+        //   'paint': {
+        //     'circle-radius': 100,
+        //     'circle-color': '#7D40FF',
+        //     'circle-opacity': 0.4,
+        //     'circle-stroke-color': '#7D40FF'
+        //   }
+        // }, firstSymbolId,
+        // );
+
+          map.addSource("polygon", createGeoJSONCircle([0,0], 3));
+
+          map.addLayer({
+            "id": "polygon",
+            "type": "fill",
+            "source": "polygon",
+            "layout": {},
+            "paint": {
+              "fill-color": "#7D40FF",
+              'fill-outline-color': "#7D40FF",
+              "fill-opacity": 0.5
             }
-          }
+          },
+          firstSymbolId,
+          );
+
+        geocoder.on("result", function (data) {
+          
           var point = data.result.center;
           var tileset = "yuanzf.5nbk3677";
 
@@ -169,25 +247,50 @@
             layers: ["tilequery-points"],
           });
 
-          // console.log(features);
-          map.addSource("polygon", createGeoJSONCircle([point[0], point[1]], 3));
 
-          map.addLayer({
-            "id": "polygon",
-            "type": "fill",
-            "source": "polygon",
-            "layout": {},
-            "paint": {
-              "fill-color": "#7D40FF",
-              'fill-outline-color': "#7D40FF",
-              "fill-opacity": 0.6
-            }
-          },
-          firstSymbolId,
-          );
+          geojson=createGeoJSONCircle([point[0], point[1]], 3)
+
+          map.getSource("polygon").setData(geojson.data)
+          map.jumpTo({ 'center': [point[0], point[1]], 'zoom': 12 });
+
+        
+
+          map.on('mouseenter', 'polygon', function () {
+            map.setPaintProperty('polygon', "fill-opacity", 0.8);
+            canvas.style.cursor = 'move';
+          });
+
+          map.on('mouseleave', 'polygon', function () {
+            map.setPaintProperty('polygon', "fill-opacity", 0.5);
+            canvas.style.cursor = '';
+          });
+
+          // map.on('mousedown', 'point', function (e) {
+          //   // Prevent the default map drag behavior.
+          //   e.preventDefault();
+
+          //   canvas.style.cursor = 'grab';
+
+          //   map.on('mousemove', onMove);
+          //   map.once('mouseup', onUp);
+          // });
+
+          // map.on('touchstart', 'point', function (e) {
+          //   if (e.points.length !== 1) return;
+
+          //   // Prevent the default map drag behavior.
+          //   e.preventDefault();
+
+          //   map.on('touchmove', onMove);
+          //   map.once('touchend', onUp);
+          // });
+
+
+
 
           
         });
+        
 
         map.addSource("tilequery", {
           type: "geojson",
@@ -221,9 +324,6 @@
             layers: ["tilequery-points"],
           });
         
-
-          
-  
 
           function buildISPList(data) {
             var listings = document.getElementById("listings");
@@ -291,7 +391,7 @@
             //query the name of the city. We need better way to do this....
 
             cbgfips = getFIPS(uniqueFeatures);
-            if(location){
+            if(location.length>0){
               var minplacerank = location[0].properties.symbolrank
               var city = location[0].properties.name_en
               for (var i = 0; i < location.length; i++) {

@@ -91,6 +91,7 @@ body {
 
 #sidebar .header {
   background-color: #212121;
+  display: block;
   overflow: hidden;
   padding: 20px;
   min-height: 100px;
@@ -106,7 +107,7 @@ body {
   z-index: 9;
   background-color: #212121;
   height: 120px;
-  width: 440px;
+  width: 450px;
 }
 
 .top.shadow {
